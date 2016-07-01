@@ -3,6 +3,8 @@ This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/so
 
 This wrapper library is licensed the same as libsoxr itself: GPLv2.
 
+The documentation can be found [here](https://lrbalt.github.io/libsoxr-rs/libsoxr/).
+
 Example:
 
 ```rust

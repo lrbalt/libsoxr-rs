@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `api` mod in crate `libsoxr`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, api">
+
+    <title>libsoxr::api - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>libsoxr</a></p><script>window.sidebarCurrent = {name: 'api', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>libsoxr</a>::<wbr><a class='mod' href=''>api</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-6' class='srclink' href='../../src/libsoxr/src/api.rs.html#1-239' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This is a thin wrapper around the libsoxr C API.</p>
+
+<p>The documentation for this api namespace was copied from
+<a href="https://sourceforge.net/p/soxr/code/ci/master/tree/src/soxr.h"><code>soxr.h</code></a> of libsoxr</p>
+
+<h1 id='api-conventions' class='section-header'><a href='#api-conventions'>API conventions</a></h1>
+<p>Buffer lengths (and occupancies) are expressed as the number of contained
+samples per channel.</p>
+
+<p>Parameter names for buffer lengths have the suffix `len&#39;.</p>
+
+<p>A single-character `i&#39; or &#39;o&#39; is often used in names to give context as
+input or output (e.g. ilen, olen).</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.soxr_io_spec_t.html'
+                                  title='libsoxr::api::soxr_io_spec_t'>soxr_io_spec_t</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.soxr_quality_spec.html'
+                                  title='libsoxr::api::soxr_quality_spec'>soxr_quality_spec</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.soxr_runtime_spec_t.html'
+                                  title='libsoxr::api::soxr_runtime_spec_t'>soxr_runtime_spec_t</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.soxr.html'
+                                  title='libsoxr::api::soxr'>soxr</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.soxr_datatype_t.html'
+                                  title='libsoxr::api::soxr_datatype_t'>soxr_datatype_t</a></td>
+                           <td class='docblock short'>
+                                <p>Datatypes supported for I/O to/from the resampler:</p>
+                           </td>
+                       </tr></table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_16_BITQ.html'
+                                  title='libsoxr::api::SOXR_16_BITQ'>SOXR_16_BITQ</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_20_BITQ.html'
+                                  title='libsoxr::api::SOXR_20_BITQ'>SOXR_20_BITQ</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_24_BITQ.html'
+                                  title='libsoxr::api::SOXR_24_BITQ'>SOXR_24_BITQ</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_28_BITQ.html'
+                                  title='libsoxr::api::SOXR_28_BITQ'>SOXR_28_BITQ</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_32_BITQ.html'
+                                  title='libsoxr::api::SOXR_32_BITQ'>SOXR_32_BITQ</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_COEF_INTERP_AUTO.html'
+                                  title='libsoxr::api::SOXR_COEF_INTERP_AUTO'>SOXR_COEF_INTERP_AUTO</a></td>
+                           <td class='docblock short'>
+                                <p>Auto select coef. interpolation.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_COEF_INTERP_HIGH.html'
+                                  title='libsoxr::api::SOXR_COEF_INTERP_HIGH'>SOXR_COEF_INTERP_HIGH</a></td>
+                           <td class='docblock short'>
+                                <p>Man. select: more CPU, less memory.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_COEF_INTERP_LOW.html'
+                                  title='libsoxr::api::SOXR_COEF_INTERP_LOW'>SOXR_COEF_INTERP_LOW</a></td>
+                           <td class='docblock short'>
+                                <p>Man. select: less CPU, more memory.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_DOUBLE_PRECISION.html'
+                                  title='libsoxr::api::SOXR_DOUBLE_PRECISION'>SOXR_DOUBLE_PRECISION</a></td>
+                           <td class='docblock short'>
+                                <p>Use D.P. calcs even if precision &lt;= 20.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_HI_PREC_CLOCK.html'
+                                  title='libsoxr::api::SOXR_HI_PREC_CLOCK'>SOXR_HI_PREC_CLOCK</a></td>
+                           <td class='docblock short'>
+                                <p>Increase `irrational&#39; ratio accuracy.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_HQ.html'
+                                  title='libsoxr::api::SOXR_HQ'>SOXR_HQ</a></td>
+                           <td class='docblock short'>
+                                <p>&#39;High quality&#39;.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_INTERMEDIATE_PHASE.html'
+                                  title='libsoxr::api::SOXR_INTERMEDIATE_PHASE'>SOXR_INTERMEDIATE_PHASE</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_LINEAR_PHASE.html'
+                                  title='libsoxr::api::SOXR_LINEAR_PHASE'>SOXR_LINEAR_PHASE</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_LQ.html'
+                                  title='libsoxr::api::SOXR_LQ'>SOXR_LQ</a></td>
+                           <td class='docblock short'>
+                                <p>&#39;Low&#39; 16-bit with larger rolloff.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_MINIMUM_PHASE.html'
+                                  title='libsoxr::api::SOXR_MINIMUM_PHASE'>SOXR_MINIMUM_PHASE</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_MQ.html'
+                                  title='libsoxr::api::SOXR_MQ'>SOXR_MQ</a></td>
+                           <td class='docblock short'>
+                                <p>&#39;Medium&#39; 16-bit with medium rolloff.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_NO_DITHER.html'
+                                  title='libsoxr::api::SOXR_NO_DITHER'>SOXR_NO_DITHER</a></td>
+                           <td class='docblock short'>
+                                <p>Disable the above.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_QQ.html'
+                                  title='libsoxr::api::SOXR_QQ'>SOXR_QQ</a></td>
+                           <td class='docblock short'>
+                                <p>&#39;Quick&#39; cubic interpolation.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_ROLLOFF_MEDIUM.html'
+                                  title='libsoxr::api::SOXR_ROLLOFF_MEDIUM'>SOXR_ROLLOFF_MEDIUM</a></td>
+                           <td class='docblock short'>
+                                <p>&lt;= 0.35 dB</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_ROLLOFF_NONE.html'
+                                  title='libsoxr::api::SOXR_ROLLOFF_NONE'>SOXR_ROLLOFF_NONE</a></td>
+                           <td class='docblock short'>
+                                <p>For Chebyshev bandwidth.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_ROLLOFF_SMALL.html'
+                                  title='libsoxr::api::SOXR_ROLLOFF_SMALL'>SOXR_ROLLOFF_SMALL</a></td>
+                           <td class='docblock short'>
+                                <p>&lt;= 0.01 dB</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_STEEP_FILTER.html'
+                                  title='libsoxr::api::SOXR_STEEP_FILTER'>SOXR_STEEP_FILTER</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_TPDF.html'
+                                  title='libsoxr::api::SOXR_TPDF'>SOXR_TPDF</a></td>
+                           <td class='docblock short'>
+                                <p>Applicable only if otype is INT16.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_VHQ.html'
+                                  title='libsoxr::api::SOXR_VHQ'>SOXR_VHQ</a></td>
+                           <td class='docblock short'>
+                                <p>&#39;Very high quality&#39;.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='constant' href='constant.SOXR_VR.html'
+                                  title='libsoxr::api::SOXR_VR'>SOXR_VR</a></td>
+                           <td class='docblock short'>
+                                <p>Variable-rate resampling.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_clear.html'
+                                  title='libsoxr::api::soxr_clear'>soxr_clear</a></td>
+                           <td class='docblock short'>
+                                <p>Ready for fresh signal, same config.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_create.html'
+                                  title='libsoxr::api::soxr_create'>soxr_create</a></td>
+                           <td class='docblock short'>
+                                <p>Create a stream resampler</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_delay.html'
+                                  title='libsoxr::api::soxr_delay'>soxr_delay</a></td>
+                           <td class='docblock short'>
+                                <p>Query current delay in output samples</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_delete.html'
+                                  title='libsoxr::api::soxr_delete'>soxr_delete</a></td>
+                           <td class='docblock short'>
+                                <p>Free resources.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_engine.html'
+                                  title='libsoxr::api::soxr_engine'>soxr_engine</a></td>
+                           <td class='docblock short'>
+                                <p>Query resampling engine name.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_error.html'
+                                  title='libsoxr::api::soxr_error'>soxr_error</a></td>
+                           <td class='docblock short'>
+                                <p>Query error status.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_io_spec.html'
+                                  title='libsoxr::api::soxr_io_spec'>soxr_io_spec</a></td>
+                           <td class='docblock short'>
+                                <p>These functions allow setting of the most commonly-used structure parameters, with other
+parameters being given default values.  The default values may then be overridden,
+directly in the structure, if needed.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_num_clips.html'
+                                  title='libsoxr::api::soxr_num_clips'>soxr_num_clips</a></td>
+                           <td class='docblock short'>
+                                <p>Query int. clip counter (for R/W).</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_process.html'
+                                  title='libsoxr::api::soxr_process'>soxr_process</a></td>
+                           <td class='docblock short'>
+                                <p>If not using an app-supplied input function, after creating a stream resampler, repeatedly
+call <code>soxr_process</code></p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_quality_spec.html'
+                                  title='libsoxr::api::soxr_quality_spec'>soxr_quality_spec</a></td>
+                           <td class='docblock short'>
+                                <p>These functions allow setting of the most commonly-used structure parameters, with other
+parameters being given default values.  The default values may then be overridden,
+directly in the structure, if needed.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_runtime_spec.html'
+                                  title='libsoxr::api::soxr_runtime_spec'>soxr_runtime_spec</a></td>
+                           <td class='docblock short'>
+                                <p>These functions allow setting of the most commonly-used structure parameters, with other
+parameters being given default values.  The default values may then be overridden,
+directly in the structure, if needed.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_set_error.html'
+                                  title='libsoxr::api::soxr_set_error'>soxr_set_error</a></td>
+                           <td class='docblock short'>
+                                <p>Set error of already created <code>soxr_t</code></p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_set_io_ratio.html'
+                                  title='libsoxr::api::soxr_set_io_ratio'>soxr_set_io_ratio</a></td>
+                           <td class='docblock short'>
+                                <p>For variable-rate resampling. See example # 5 for how to create a variable-rate resampler
+and how to use this function.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_set_num_channels.html'
+                                  title='libsoxr::api::soxr_set_num_channels'>soxr_set_num_channels</a></td>
+                           <td class='docblock short'>
+                                <p>Set number of channels of already created <code>soxr_t</code></p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_version.html'
+                                  title='libsoxr::api::soxr_version'>soxr_version</a></td>
+                           <td class='docblock short'>
+                                <p>Query library version: &quot;libsoxr-x.y.z&quot;</p>
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_error_t.html'
+                                  title='libsoxr::api::soxr_error_t'>soxr_error_t</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_in_t.html'
+                                  title='libsoxr::api::soxr_in_t'>soxr_in_t</a></td>
+                           <td class='docblock short'>
+                                <p>Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_out_t.html'
+                                  title='libsoxr::api::soxr_out_t'>soxr_out_t</a></td>
+                           <td class='docblock short'>
+                                <p>Either a soxr_buf_t or soxr_bufs_t,depending on otype in soxr_io_spec_t.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_quality_spec_t.html'
+                                  title='libsoxr::api::soxr_quality_spec_t'>soxr_quality_spec_t</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_t.html'
+                                  title='libsoxr::api::soxr_t'>soxr_t</a></td>
+                           <td class='docblock short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "libsoxr";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

@@ -5,7 +5,22 @@ This wrapper library is licensed the same as libsoxr itself: GPLv2.
 
 The documentation can be found [here](https://lrbalt.github.io/libsoxr-rs/libsoxr/).
 
-Example:
+# Install
+
+add the following to your Cargo.toml:
+```toml
+[dependencies.libsoxr]
+git = "https://github.com/lrbalt/libsoxr-rs"
+```
+
+and add the crate:
+
+```rust
+extern create libsoxr;
+use libsoxr::Soxr;
+```
+
+# Example
 
 ```rust
 // upscale factor 2, one channel with all the defaults

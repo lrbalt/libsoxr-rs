@@ -5,6 +5,12 @@ authors = ["Reinier Balt <lrbalt@gmail.com>"]
 description = "Wrapper for libsoxr (resampling library for sounds)"
 repository = "https://github.com/lrbalt/libsoxr-rs"
 keywords = ["audio", "sound", "resampling", "sox", "soxr"]
-licence = "LGPL-2.0"
+license = "LGPL-2.0"
+build = "build.rs"
 
 [dependencies]
+libc = "*"
+bitflags = "*"
+
+[build-dependencies]
+pkg-config = "*"

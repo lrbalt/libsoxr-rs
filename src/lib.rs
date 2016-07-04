@@ -22,14 +22,15 @@
 //!
 //! and add the crate:
 //!
-//! ```rust
-//! extern create libsoxr;
+//! ```ignore
+//! extern crate libsoxr;
 //! use libsoxr::Soxr;
 //! ```
 //!
 //! # Example
 //!
 //! ```rust
+//! # use libsoxr::Soxr;
 //! // upscale factor 2, one channel with all the defaults
 //! let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 //!

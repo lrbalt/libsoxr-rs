@@ -281,6 +281,56 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! This is a thin wrapper around the libsoxr C API.</span>
 <span class='doccomment'>//!</span>
@@ -307,10 +357,33 @@
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>soxr</span>;
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_error_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>;
 
+<span class='doccomment'>/// If needed by the input function. As given to soxr_set_input_fn</span>
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_fn_state_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>;
 <span class='doccomment'>/// Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_in_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>;
 <span class='doccomment'>/// Either a soxr_buf_t or soxr_bufs_t,depending on otype in soxr_io_spec_t.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_out_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>;
+
+<span class='doccomment'>/// Function to supply data to be resampled.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// * input_fn_state - As given to soxr_set_input_fn (below).</span>
+<span class='doccomment'>/// * data - Returned data; see below. N.B. ptr to ptr(s)</span>
+<span class='doccomment'>/// * requested_len - Samples per channel, &gt;= returned data_len.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// returns data_len</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```ignore</span>
+<span class='doccomment'>///  data_len  *data     Indicates    Meaning</span>
+<span class='doccomment'>///  ------- -------   ------------  -------------------------</span>
+<span class='doccomment'>///    !=0     !=0       Success     *data contains data to be</span>
+<span class='doccomment'>///                                  input to the resampler.</span>
+<span class='doccomment'>///     0    !=0 (or   End-of-input  No data is available nor</span>
+<span class='doccomment'>///          not set)                shall be available.</span>
+<span class='doccomment'>///     0       0        Failure     An error occurred whilst trying to</span>
+<span class='doccomment'>///                                  source data to be input to the resampler.  */</span>
+<span class='doccomment'>/// ```</span>
+<span class='doccomment'>/// and be registered with a previously created stream resampler using `soxr_set_input_fn`</span>
+<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_input_fn_t</span> <span class='op'>=</span> <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span>(<span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>, <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>soxr_in_t</span>, <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
 
 <span class='doccomment'>/// Datatypes supported for I/O to/from the resampler:</span>
 <span class='doccomment'>///</span>
@@ -477,19 +550,46 @@
                         <span class='ident'>odone</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>size_t</span>)
                         <span class='op'>-&gt;</span> <span class='ident'>soxr_error_t</span>;
 
+    <span class='doccomment'>/// Set (or reset) an input function.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// * resampler - As returned by soxr_create.</span>
+    <span class='doccomment'>/// * func - Function to supply data to be resampled.</span>
+    <span class='doccomment'>/// * input_fn_state - If needed by the input function.</span>
+    <span class='doccomment'>/// * max_ilen - Maximum value for input fn. requested_len.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_set_input_fn</span>(<span class='ident'>resampler</span>: <span class='ident'>soxr_t</span>,
+                             <span class='ident'>func</span>: <span class='ident'>soxr_input_fn_t</span>,
+                             <span class='ident'>input_fn_state</span>: <span class='ident'>soxr_fn_state_t</span>,
+                             <span class='ident'>max_ilen</span>: <span class='ident'>usize</span>)
+                             <span class='op'>-&gt;</span> <span class='ident'>soxr_error_t</span>;
+
+    <span class='doccomment'>/// Resample and output a block of data. If using an app-supplied input function, it must</span>
+    <span class='doccomment'>/// look and behave like `soxr_input_fn_t` and be registered with a previously created stream</span>
+    <span class='doccomment'>/// resampler using `soxr_set_input_fn` then repeatedly call `soxr_output`.</span>
+    <span class='doccomment'>///</span>
+    <span class='doccomment'>/// * resampler - As returned by soxr_create.</span>
+    <span class='doccomment'>/// * data - App-supplied buffer(s) for resampled data.</span>
+    <span class='doccomment'>/// * olen - Amount of data to output; &gt;= return value</span>
+    <span class='doccomment'>/// returns number of samples in buffer</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_output</span>(<span class='ident'>resampler</span>: <span class='ident'>soxr_t</span>, <span class='ident'>data</span>: <span class='ident'>soxr_out_t</span>, <span class='ident'>olen</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
+
     <span class='doccomment'>/// Query library version: &quot;libsoxr-x.y.z&quot;</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_version</span>() <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>;
 
     <span class='doccomment'>/// Query error status.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_error</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>) <span class='op'>-&gt;</span> <span class='ident'>soxr_error_t</span>;
+
     <span class='doccomment'>/// Query int. clip counter (for R/W).</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_num_clips</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>size_t</span>;
+
     <span class='doccomment'>/// Query current delay in output samples</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_delay</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>) <span class='op'>-&gt;</span> <span class='ident'>c_double</span>;
+
     <span class='doccomment'>/// Query resampling engine name.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_engine</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>;
+
     <span class='doccomment'>/// Ready for fresh signal, same config.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_clear</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>) <span class='op'>-&gt;</span> <span class='ident'>soxr_error_t</span>;
+
     <span class='doccomment'>/// Free resources.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>soxr_delete</span>(<span class='ident'>soxr</span>: <span class='ident'>soxr_t</span>);
 

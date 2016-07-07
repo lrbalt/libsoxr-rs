@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-6' class='srclink' href='../../src/libsoxr/src/api.rs.html#1-239' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-6' class='srclink' href='../../src/libsoxr/src/api.rs.html#1-289' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This is a thin wrapper around the libsoxr C API.</p>
 
 <p>The documentation for this api namespace was copied from
@@ -335,6 +335,15 @@ directly in the structure, if needed.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_output.html'
+                                  title='libsoxr::api::soxr_output'>soxr_output</a></td>
+                           <td class='docblock short'>
+                                <p>Resample and output a block of data. If using an app-supplied input function, it must
+look and behave like <code>soxr_input_fn_t</code> and be registered with a previously created stream
+resampler using <code>soxr_set_input_fn</code> then repeatedly call <code>soxr_output</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class='fn' href='fn.soxr_process.html'
                                   title='libsoxr::api::soxr_process'>soxr_process</a></td>
                            <td class='docblock short'>
@@ -368,6 +377,13 @@ directly in the structure, if needed.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class='fn' href='fn.soxr_set_input_fn.html'
+                                  title='libsoxr::api::soxr_set_input_fn'>soxr_set_input_fn</a></td>
+                           <td class='docblock short'>
+                                <p>Set (or reset) an input function.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class='fn' href='fn.soxr_set_io_ratio.html'
                                   title='libsoxr::api::soxr_set_io_ratio'>soxr_set_io_ratio</a></td>
                            <td class='docblock short'>
@@ -398,10 +414,24 @@ and how to use this function.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_fn_state_t.html'
+                                  title='libsoxr::api::soxr_fn_state_t'>soxr_fn_state_t</a></td>
+                           <td class='docblock short'>
+                                <p>If needed by the input function. As given to soxr_set_input_fn</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class='type' href='type.soxr_in_t.html'
                                   title='libsoxr::api::soxr_in_t'>soxr_in_t</a></td>
                            <td class='docblock short'>
                                 <p>Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='type' href='type.soxr_input_fn_t.html'
+                                  title='libsoxr::api::soxr_input_fn_t'>soxr_input_fn_t</a></td>
+                           <td class='docblock short'>
+                                <p>Function to supply data to be resampled.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>

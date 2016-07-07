@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `SOXR_ROLLOFF_SMALL` constant in crate `libsoxr`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, SOXR_ROLLOFF_SMALL">
+    <meta name="description" content="API documentation for the Rust `soxr_output` fn in crate `libsoxr`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, soxr_output">
 
-    <title>libsoxr::api::SOXR_ROLLOFF_SMALL - Rust</title>
+    <title>libsoxr::api::soxr_output - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
@@ -28,7 +28,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>libsoxr</a>::<wbr><a href='index.html'>api</a></p><script>window.sidebarCurrent = {name: 'SOXR_ROLLOFF_SMALL', ty: 'constant', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='../index.html'>libsoxr</a>::<wbr><a href='index.html'>api</a></p><script>window.sidebarCurrent = {name: 'soxr_output', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -42,13 +42,22 @@
         </form>
     </nav>
 
-    <section id='main' class="content constant">
-<h1 class='fqn'><span class='in-band'><a href='../index.html'>libsoxr</a>::<wbr><a href='index.html'>api</a>::<wbr><a class='constant' href=''>SOXR_ROLLOFF_SMALL</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content fn">
+<h1 class='fqn'><span class='in-band'><a href='../index.html'>libsoxr</a>::<wbr><a href='index.html'>api</a>::<wbr><a class='fn' href=''>soxr_output</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-51' class='srclink' href='../../src/libsoxr/src/api.rs.html#111' title='goto source code'>[src]</a></span></h1>
-<pre class='rust const'>pub const SOXR_ROLLOFF_SMALL: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><code> = </code><code>0</code></pre><div class='docblock'><p>&lt;= 0.01 dB</p>
+               </span><a id='src-103' class='srclink' href='../../src/libsoxr/src/api.rs.html#239' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub unsafe extern fn soxr_output(resampler: <a class='type' href='../../libsoxr/api/type.soxr_t.html' title='libsoxr::api::soxr_t'>soxr_t</a>, data: <a class='type' href='../../libsoxr/api/type.soxr_out_t.html' title='libsoxr::api::soxr_out_t'>soxr_out_t</a>, olen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></pre><div class='docblock'><p>Resample and output a block of data. If using an app-supplied input function, it must
+look and behave like <code>soxr_input_fn_t</code> and be registered with a previously created stream
+resampler using <code>soxr_set_input_fn</code> then repeatedly call <code>soxr_output</code>.</p>
+
+<ul>
+<li>resampler - As returned by soxr_create.</li>
+<li>data - App-supplied buffer(s) for resampled data.</li>
+<li>olen - Amount of data to output; &gt;= return value
+returns number of samples in buffer</li>
+</ul>
 </div></section>
     <section id='search' class="content hidden"></section>
 

@@ -111,6 +111,8 @@
 <span id="67">67</span>
 <span id="68">68</span>
 <span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! # libsoxr-rs</span>
 <span class='doccomment'>//!</span>
@@ -120,7 +122,8 @@
 <span class='doccomment'>//! Use the `soxr` namespace to use soxr in your Rust program. For direct access to the libsoxr</span>
 <span class='doccomment'>//! functions, you can use the `api` namespace.</span>
 <span class='doccomment'>//! # libsoxr-rs</span>
-<span class='doccomment'>//! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is a &quot;High quality, one-dimensional sample-rate conversion library&quot;.</span>
+<span class='doccomment'>//! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is</span>
+<span class='doccomment'>//! a &quot;High quality, one-dimensional sample-rate conversion library&quot;.</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! This wrapper library is licensed the same as libsoxr itself: GPLv2.</span>
 <span class='doccomment'>//!</span>
@@ -136,14 +139,15 @@
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! and add the crate:</span>
 <span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```rust</span>
-<span class='doccomment'>//! extern create libsoxr;</span>
+<span class='doccomment'>//! ```ignore</span>
+<span class='doccomment'>//! extern crate libsoxr;</span>
 <span class='doccomment'>//! use libsoxr::Soxr;</span>
 <span class='doccomment'>//! ```</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! # Example</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! ```rust</span>
+<span class='doccomment'>//! # use libsoxr::Soxr;</span>
 <span class='doccomment'>//! // upscale factor 2, one channel with all the defaults</span>
 <span class='doccomment'>//! let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();</span>
 <span class='doccomment'>//!</span>

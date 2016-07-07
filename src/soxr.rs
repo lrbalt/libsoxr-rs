@@ -249,7 +249,6 @@ impl Soxr {
     pub fn output<S>(&self, data: Box<&[S]>) -> usize {
         let len = data.len();
         let buf = Box::into_raw(data);
-        println!("soxr::output - c_data {:?}", buf as *mut c_void);
         unsafe { api::soxr_output(self.soxr, buf as *mut c_void, len) }
     }
 }

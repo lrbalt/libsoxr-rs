@@ -9,6 +9,7 @@ use error_handling::{Error, ErrorType, Result};
 use spec::{IOSpec, QualitySpec, RuntimeSpec};
 
 /// Wrapper for soxr_t
+#[derive(Debug)]
 pub struct Soxr {
     soxr: api::soxr_t,
     error: CString,
@@ -169,6 +170,88 @@ impl Soxr {
                                                        .to_string())))
         }
     }
+
+    /// Accepts a function  of type `soxr_input_fn_t`
+    ///
+    /// * The function is given input_state of type `soxr_fn_state_t` when called
+    /// * It is supplied the sample buffer that was given using `Soxr::output`
+    ///
+    /// ```ignore
+    /// let state_data = 4.0f32;
+    /// let data_for_soxr = Box::into_raw(Box::new(state_data));
+    /// assert!(s.set_input(test_input_fn, Some(data_for_soxr as soxr_fn_state_t), 10).is_ok());
+    /// ```
+    pub fn set_input(&mut self,
+                     input: api::soxr_input_fn_t,
+                     input_state: Option<api::soxr_fn_state_t>,
+                     max_ilen: usize)
+                     -> Result<()> {
+        let error = unsafe {
+            api::soxr_set_input_fn(self.soxr,
+                                   input,
+                                   input_state.unwrap_or_else(|| {
+                                       ptr::null()
+                                   }) as api::soxr_fn_state_t,
+                                   max_ilen)
+        };
+        if error == ptr::null_mut() {
+            Ok(())
+        } else {
+            Err(Error::new(Some("Soxr::set_input".into()),
+                           ErrorType::ProcessError(from_const("Soxr::set_input", error)
+                                                       .unwrap()
+                                                       .to_string())))
+        }
+    }
+
+    /// Resample and output a block of data using an  app-supplied input function.
+    /// This function must look and behave like `soxr_input_fn_t` and be registered with a
+    /// previously created stream resampler using `set_input` then repeatedly call `output`.
+    ///
+    /// * data - App-supplied buffer(s) for resampled data.
+    /// returns number of samples in buffer
+    ///
+    /// ```ignore
+    /// let buffer = [1.1f32; 100];
+    /// let buf = Box::new(&buffer[..]);
+    /// s.output(buf);
+    /// ```
+    /// `buf` is send to the function set with `set_input` like so:
+    ///
+    /// ```ignore
+    /// let state_data = 4.0f32;
+    /// let data_for_soxr = Box::into_raw(Box::new(state_data));
+    /// assert!(s.set_input(test_input_fn, Some(data_for_soxr as soxr_fn_state_t), 10).is_ok());
+    /// ```
+    ///
+    /// and can be recovered using
+    ///
+    /// ```ignore
+    /// extern "C" fn test_input_fn(state: soxr_fn_state_t,
+    ///                             buf: *mut soxr_in_t,
+    ///                             req_len: usize)
+    ///                             -> usize {
+    ///     // convert back state into Box<f32>
+    ///     let state_data: Box<f32> = unsafe { Box::from_raw(state as *mut f32) };
+    ///     assert_eq!(4.0, *state_data);
+    ///
+    ///     // convert buf back into Box<&mut [f32]>
+    ///     let mut data: Box<&mut [f32]> = unsafe { Box::from_raw(*buf as *mut &mut [f32]) };
+    ///     assert_eq!(1.1, (*data)[0]);
+    ///     assert_eq!(1.1, (*data)[99]);
+    ///     assert_eq!(10, req_len);
+    ///
+    ///     // return end-of-input by setting first value of buf
+    ///     (*data)[0] = 0.0;
+    ///     0
+    /// }
+    /// ```
+    pub fn output<S>(&self, data: Box<&[S]>) -> usize {
+        let len = data.len();
+        let buf = Box::into_raw(data);
+        println!("soxr::output - c_data {:?}", buf as *mut c_void);
+        unsafe { api::soxr_output(self.soxr, buf as *mut c_void, len) }
+    }
 }
 
 impl Drop for Soxr {
@@ -177,73 +260,109 @@ impl Drop for Soxr {
     }
 }
 
-#[test]
-fn test_version() {
-    let version = Soxr::version();
-    println!("{}", version);
-    assert_eq!("libsoxr-0.1.2", version);
-}
+#[cfg(test)]
+mod soxr_tests {
+    use super::Soxr;
+    use spec::{IOSpec, QualitySpec, RuntimeSpec};
 
-#[test]
-fn test_create() {
-    use datatype::Datatype;
-    use spec::{QualityRecipe, ROLLOFF_SMALL};
+    #[test]
+    fn test_version() {
+        let version = Soxr::version();
+        println!("{}", version);
+        assert_eq!("libsoxr-0.1.2", version);
+    }
 
-    let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
-    assert!(s.is_ok());
-    s = Soxr::create(96000.0,
-                     44100.0,
-                     2,
-                     Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
-                     Some(QualitySpec::new(QualityRecipe::High, ROLLOFF_SMALL)),
-                     Some(RuntimeSpec::new(4)));
-    assert!(s.is_ok());
-}
+    #[test]
+    fn test_create() {
+        use datatype::Datatype;
+        use spec::{QualityRecipe, ROLLOFF_SMALL};
 
-#[test]
-fn test_error() {
-    let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-    assert!(s.error().is_none());
-    assert!(s.set_error("Sumsing Wrung".to_string()).is_ok());
-    // FIXME: should eval to true, but not seem to work and returns false
-    assert!(!s.error().is_some());
-}
+        let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
+        assert!(s.is_ok());
+        s = Soxr::create(96000.0,
+                         44100.0,
+                         2,
+                         Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
+                         Some(QualitySpec::new(QualityRecipe::High, ROLLOFF_SMALL)),
+                         Some(RuntimeSpec::new(4)));
+        assert!(s.is_ok());
+    }
 
-#[test]
-fn test_engine() {
-    let s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-    assert_eq!("single-precision-SIMD", s.engine());
-}
+    #[test]
+    fn test_error() {
+        let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
+        assert!(s.error().is_none());
+        assert!(s.set_error("Sumsing Wrung".to_string()).is_ok());
+        // FIXME: should eval to true, but not seem to work and returns false
+        assert!(!s.error().is_some());
+    }
 
-#[test]
-fn test_clear() {
-    let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-    assert!(s.clear().is_ok());
-}
+    #[test]
+    fn test_engine() {
+        let s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
+        assert_eq!("single-precision-SIMD", s.engine());
+    }
 
-#[test]
-fn test_set_io_ratio() {
-    let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-    let result = s.set_io_ratio(0.1, 1);
-    assert!(result.is_err());
-}
+    #[test]
+    fn test_clear() {
+        let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
+        assert!(s.clear().is_ok());
+    }
 
-#[test]
-fn test_process() {
-    // Example taken from 1-single-block.c of libsoxr
-    let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
-    let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
-                             1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
-                             0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,
-                             -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
-    let mut target: [f32; 96] = [0.0; 96];
-    let result = s.process(Some(&source), &mut target).and_then(|_| {
-        s.process::<f32, f32>(None, &mut target[0..]).and_then(|_| {
-            for s in target.iter() {
-                print!("{:?}\t", s)
-            }
-            Ok(())
-        })
-    });
-    assert!(result.is_ok());
+    #[test]
+    fn test_set_io_ratio() {
+        let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
+        let result = s.set_io_ratio(0.1, 1);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_process() {
+        // Example taken from 1-single-block.c of libsoxr
+        let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+        let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
+        let mut target: [f32; 96] = [0.0; 96];
+        let result = s.process(Some(&source), &mut target).and_then(|_| {
+            s.process::<f32, f32>(None, &mut target[0..]).and_then(|_| {
+                for s in target.iter() {
+                    print!("{:?}\t", s)
+                }
+                Ok(())
+            })
+        });
+        assert!(result.is_ok());
+    }
+
+    use api::{soxr_in_t, soxr_fn_state_t};
+    extern "C" fn test_input_fn(state: soxr_fn_state_t,
+                                buf: *mut soxr_in_t,
+                                req_len: usize)
+                                -> usize {
+        let s: Box<f32> = unsafe { Box::from_raw(state as *mut f32) };
+        assert_eq!(4.0, *s);
+
+        let mut data: Box<&mut [f32]> = unsafe { Box::from_raw(*buf as *mut &mut [f32]) };
+        assert_eq!(1.1, (*data)[0]);
+        assert_eq!(1.1, (*data)[99]);
+        assert_eq!(10, req_len);
+        // return end-of-input
+        (*data)[0] = 0.0;
+        0
+    }
+
+    #[test]
+    fn test_data_fn() {
+        let mut s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+
+        let state_data = Some(Box::into_raw(Box::new(4.0f32)) as soxr_fn_state_t);
+        assert!(s.set_input(test_input_fn, state_data, 10).is_ok());
+
+        let buffer = [1.1f32; 100];
+        let buf = Box::new(&buffer[..]);
+        s.output(buf);
+        assert_eq!(0.0, buffer[0]);
+    }
 }

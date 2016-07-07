@@ -23,10 +23,33 @@ pub enum soxr {}
 pub type soxr_t = *mut soxr;
 pub type soxr_error_t = *const c_char;
 
+/// If needed by the input function. As given to soxr_set_input_fn
+pub type soxr_fn_state_t = *const c_void;
 /// Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.
 pub type soxr_in_t = *const c_void;
 /// Either a soxr_buf_t or soxr_bufs_t,depending on otype in soxr_io_spec_t.
 pub type soxr_out_t = *mut c_void;
+
+/// Function to supply data to be resampled.
+///
+/// * input_fn_state - As given to soxr_set_input_fn (below).
+/// * data - Returned data; see below. N.B. ptr to ptr(s)
+/// * requested_len - Samples per channel, >= returned data_len.
+///
+/// returns data_len
+///
+/// ```ignore
+///  data_len  *data     Indicates    Meaning
+///  ------- -------   ------------  -------------------------
+///    !=0     !=0       Success     *data contains data to be
+///                                  input to the resampler.
+///     0    !=0 (or   End-of-input  No data is available nor
+///          not set)                shall be available.
+///     0       0        Failure     An error occurred whilst trying to
+///                                  source data to be input to the resampler.  */
+/// ```
+/// and be registered with a previously created stream resampler using `soxr_set_input_fn`
+pub type soxr_input_fn_t = extern "C" fn(*const c_void, *mut soxr_in_t, usize) -> usize;
 
 /// Datatypes supported for I/O to/from the resampler:
 ///
@@ -193,19 +216,46 @@ extern "C" {
                         odone: *mut size_t)
                         -> soxr_error_t;
 
+    /// Set (or reset) an input function.
+    ///
+    /// * resampler - As returned by soxr_create.
+    /// * func - Function to supply data to be resampled.
+    /// * input_fn_state - If needed by the input function.
+    /// * max_ilen - Maximum value for input fn. requested_len.
+    pub fn soxr_set_input_fn(resampler: soxr_t,
+                             func: soxr_input_fn_t,
+                             input_fn_state: soxr_fn_state_t,
+                             max_ilen: usize)
+                             -> soxr_error_t;
+
+    /// Resample and output a block of data. If using an app-supplied input function, it must
+    /// look and behave like `soxr_input_fn_t` and be registered with a previously created stream
+    /// resampler using `soxr_set_input_fn` then repeatedly call `soxr_output`.
+    ///
+    /// * resampler - As returned by soxr_create.
+    /// * data - App-supplied buffer(s) for resampled data.
+    /// * olen - Amount of data to output; >= return value
+    /// returns number of samples in buffer
+    pub fn soxr_output(resampler: soxr_t, data: soxr_out_t, olen: usize) -> usize;
+
     /// Query library version: "libsoxr-x.y.z"
     pub fn soxr_version() -> *const c_char;
 
     /// Query error status.
     pub fn soxr_error(soxr: soxr_t) -> soxr_error_t;
+
     /// Query int. clip counter (for R/W).
     pub fn soxr_num_clips(soxr: soxr_t) -> *const size_t;
+
     /// Query current delay in output samples
     pub fn soxr_delay(soxr: soxr_t) -> c_double;
+
     /// Query resampling engine name.
     pub fn soxr_engine(soxr: soxr_t) -> *const c_char;
+
     /// Ready for fresh signal, same config.
     pub fn soxr_clear(soxr: soxr_t) -> soxr_error_t;
+
     /// Free resources.
     pub fn soxr_delete(soxr: soxr_t);
 

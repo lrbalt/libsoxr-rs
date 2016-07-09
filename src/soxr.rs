@@ -246,10 +246,8 @@ impl Soxr {
     ///     0
     /// }
     /// ```
-    pub fn output<S>(&self, data: Box<&[S]>) -> usize {
-        let len = data.len();
-        let buf = Box::into_raw(data);
-        unsafe { api::soxr_output(self.soxr, buf as *mut c_void, len) }
+    pub fn output<S>(&self, data: &mut [S]) -> usize {
+        unsafe { api::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, data.len()) }
     }
 }
 
@@ -340,28 +338,66 @@ mod soxr_tests {
                                 buf: *mut soxr_in_t,
                                 req_len: usize)
                                 -> usize {
-        let s: Box<f32> = unsafe { Box::from_raw(state as *mut f32) };
-        assert_eq!(4.0, *s);
+        unsafe {
+            let s: *mut &mut TestState = state as *mut &mut TestState;
+            assert_eq!("libsoxr", (**s).check);
 
-        let mut data: Box<&mut [f32]> = unsafe { Box::from_raw(*buf as *mut &mut [f32]) };
-        assert_eq!(1.1, (*data)[0]);
-        assert_eq!(1.1, (*data)[99]);
-        assert_eq!(10, req_len);
-        // return end-of-input
-        (*data)[0] = 0.0;
-        0
+            print!("setting {}/{} values for {} with {}\t", req_len, (**s).buffer.len(), (**s).check, (**s).command);
+            let value_to_use = (**s).value;
+            for value in (**s).buffer.iter_mut().take(req_len) {
+                *value = value_to_use;
+            }
+            assert_eq!(value_to_use, (**s).buffer[0]);
+
+            {
+                let data: &[f32] = &(**s).buffer[..];
+                *buf = data.as_ptr() as soxr_in_t;
+            }
+            assert_eq!(*buf, (&(**s).buffer[0..]).as_ptr() as soxr_in_t);
+
+            if (**s).command == 0 {
+                println!("returning {:?}", req_len);
+                return req_len;
+            } else {
+                println!("eoi");
+                return 0;
+            }
+        }
+    }
+
+    #[repr(C)]
+    struct TestState {
+        check: &'static str,
+        command: u32,
+        value: f32,
+        buffer: [f32;100],
     }
 
     #[test]
     fn test_data_fn() {
         let mut s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 
-        let state_data = Some(Box::into_raw(Box::new(4.0f32)) as soxr_fn_state_t);
-        assert!(s.set_input(test_input_fn, state_data, 10).is_ok());
+        let mut state = TestState {
+            check: "libsoxr",
+            command: 0,
+            value: 2.3,
+            buffer: [1.2;100]
+        };
+        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
+        assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
 
-        let buffer = [1.1f32; 100];
-        let buf = Box::new(&buffer[..]);
-        s.output(buf);
-        assert_eq!(0.0, buffer[0]);
+        let mut data = [1.1f32; 200];
+        println!("first");
+        assert_eq!(200, s.output(&mut data[0..]));
+        assert!(data[0] != 1.1);
+
+        state.command = 1;
+        let mut buffer = [1.1f32; 200];
+        println!("second");
+        while s.output(&mut buffer[0..]) > 0 {
+            print!(".{}", buffer[0]);
+            assert!(buffer[0] != 1.1);
+        }
+        println!("");
     }
 }

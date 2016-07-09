@@ -209,6 +209,7 @@ impl Soxr {
     /// previously created stream resampler using `set_input` then repeatedly call `output`.
     ///
     /// * data - App-supplied buffer(s) for resampled data.
+    /// * samples - number of samples in buffer, i.e. data.len() / number_of_channels
     /// returns number of samples in buffer
     ///
     /// ```ignore
@@ -246,8 +247,8 @@ impl Soxr {
     ///     0
     /// }
     /// ```
-    pub fn output<S>(&self, data: &mut [S]) -> usize {
-        unsafe { api::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, data.len()) }
+    pub fn output<S>(&self, data: &mut [S], samples: usize) -> usize {
+        unsafe { api::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
     }
 }
 
@@ -340,22 +341,22 @@ mod soxr_tests {
                                 -> usize {
         unsafe {
             let s: *mut &mut TestState = state as *mut &mut TestState;
-            assert_eq!("libsoxr", (**s).check);
+            assert_eq!("libsoxr", (*s).check);
 
             print!("setting {}/{} values for {} with {}\t", req_len, (**s).buffer.len(), (**s).check, (**s).command);
-            let value_to_use = (**s).value;
-            for value in (**s).buffer.iter_mut().take(req_len) {
+            let value_to_use = (*s).value;
+            for value in (*s).buffer.iter_mut().take(req_len) {
                 *value = value_to_use;
             }
-            assert_eq!(value_to_use, (**s).buffer[0]);
+            assert_eq!(value_to_use, (*s).buffer[0]);
 
             {
-                let data: &[f32] = &(**s).buffer[..];
+                let data: &[f32] = &(*s).buffer[..];
                 *buf = data.as_ptr() as soxr_in_t;
             }
-            assert_eq!(*buf, (&(**s).buffer[0..]).as_ptr() as soxr_in_t);
+            assert_eq!(*buf, (&(*s).buffer[0..]).as_ptr() as soxr_in_t);
 
-            if (**s).command == 0 {
+            if (*s).command == 0 {
                 println!("returning {:?}", req_len);
                 return req_len;
             } else {

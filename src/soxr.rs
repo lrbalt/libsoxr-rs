@@ -173,13 +173,70 @@ impl Soxr {
 
     /// Accepts a function  of type `soxr_input_fn_t`
     ///
-    /// * The function is given input_state of type `soxr_fn_state_t` when called
-    /// * It is supplied the sample buffer that was given using `Soxr::output`
+    /// * input - The function is given input_state of type `soxr_fn_state_t` when called
+    /// * input_state - the state data which libsoxr will pass to function `input`. Pass none to
+    ///   skip use of state data.
+    /// * max_ilen - the maximum number of samples per channel that can be asked of
+    ///   function `input`. Be aware that the output_buffer that is return from the function
+    ///   `input` needs to hold `max_ilen * number_of_channels` data. These boundaries are not
+    ///   statically checked by Rust or `libsoxr`
     ///
     /// ```ignore
-    /// let state_data = 4.0f32;
-    /// let data_for_soxr = Box::into_raw(Box::new(state_data));
-    /// assert!(s.set_input(test_input_fn, Some(data_for_soxr as soxr_fn_state_t), 10).is_ok());
+    /// // struct to hold state for input_fn
+    /// struct TestState {
+    ///     // use this buffer for source samples to avoid repeated allocations
+    ///     source_buffer: [f32;100],
+    /// }
+    ///
+    /// [...]
+    ///
+    /// // create state for input_fn
+    /// let mut state = TestState {
+    ///     source_buffer: [0.0;100]
+    /// };
+    ///
+    /// // convert state to raw pointer to pass into libsoxr using set_input
+    /// let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
+    /// assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
+    /// ```
+    ///
+    /// The `test_input_fn` used above can be defined as follows which assumed a
+    /// `get_a_source_sample` function that returns one sample from the source that needs to be
+    /// resampled:
+    ///
+    /// ```ignore
+    /// extern "C" fn test_input_fn(state: soxr_fn_state_t,
+    ///                            buf: *mut soxr_in_t,
+    ///                            req_len: usize)
+    ///                            -> usize {
+    ///     unsafe {
+    ///         // Cast raw pointer to a TestState. Beware not to use Box::from_raw as it will
+    ///         // take ownership of the TestState and try to destroy the struct that is managed
+    ///         //elsewere
+    ///         let s: *mut &mut TestState = state as *mut &mut TestState;
+    ///
+    ///         // be aware: req_len is number of samples per channel, so for stereo you want to return
+    ///         // req_len * 2 values in buf
+    ///         for value in (*s).source_buffer.iter_mut().take(req_len) {
+    ///             *value = get_a_source_sample();
+    ///         }
+    ///
+    ///         {
+    ///             // buf is a pointer to a pointer to a buffer with source samples
+    ///             // data is a pointer to the buffer, so data.as_ptr() is the same, but the raw
+    ///             // pointer. Put it in *buf to tell libsoxr where to find the buffer.
+    ///             let data: &[f32] = &(*s).source_buffer[..];
+    ///             *buf = data.as_ptr() as soxr_in_t;
+    ///         }
+    ///
+    ///         // if source is "empty" return 0
+    ///         if source_has_more_data() {
+    ///             return req_len;
+    ///         } else {
+    ///             return 0;
+    ///         }
+    ///     }
+    /// }
     /// ```
     pub fn set_input(&mut self,
                      input: api::soxr_input_fn_t,
@@ -204,48 +261,19 @@ impl Soxr {
         }
     }
 
-    /// Resample and output a block of data using an  app-supplied input function.
+    /// Resample and output a block of data using an app-supplied input function.
     /// This function must look and behave like `soxr_input_fn_t` and be registered with a
     /// previously created stream resampler using `set_input` then repeatedly call `output`.
     ///
     /// * data - App-supplied buffer(s) for resampled data.
-    /// * samples - number of samples in buffer, i.e. data.len() / number_of_channels
+    /// * samples - number of samples in buffer per channel, i.e. data.len() / number_of_channels
     /// returns number of samples in buffer
     ///
     /// ```ignore
-    /// let buffer = [1.1f32; 100];
-    /// let buf = Box::new(&buffer[..]);
-    /// s.output(buf);
-    /// ```
-    /// `buf` is send to the function set with `set_input` like so:
-    ///
-    /// ```ignore
-    /// let state_data = 4.0f32;
-    /// let data_for_soxr = Box::into_raw(Box::new(state_data));
-    /// assert!(s.set_input(test_input_fn, Some(data_for_soxr as soxr_fn_state_t), 10).is_ok());
-    /// ```
-    ///
-    /// and can be recovered using
-    ///
-    /// ```ignore
-    /// extern "C" fn test_input_fn(state: soxr_fn_state_t,
-    ///                             buf: *mut soxr_in_t,
-    ///                             req_len: usize)
-    ///                             -> usize {
-    ///     // convert back state into Box<f32>
-    ///     let state_data: Box<f32> = unsafe { Box::from_raw(state as *mut f32) };
-    ///     assert_eq!(4.0, *state_data);
-    ///
-    ///     // convert buf back into Box<&mut [f32]>
-    ///     let mut data: Box<&mut [f32]> = unsafe { Box::from_raw(*buf as *mut &mut [f32]) };
-    ///     assert_eq!(1.1, (*data)[0]);
-    ///     assert_eq!(1.1, (*data)[99]);
-    ///     assert_eq!(10, req_len);
-    ///
-    ///     // return end-of-input by setting first value of buf
-    ///     (*data)[0] = 0.0;
-    ///     0
-    /// }
+    /// // call output using a buffer of 100 mono samples. For stereo devide by 2, so this buffer
+    /// // could hold 100 / number_of_channels = 50 stereo samples.
+    /// let mut buffer = [0.0f32; 100];
+    /// assert!(s.output(&mut buffer[..], buffer.len()) > 0);
     /// ```
     pub fn output<S>(&self, data: &mut [S], samples: usize) -> usize {
         unsafe { api::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
@@ -340,22 +368,34 @@ mod soxr_tests {
                                 req_len: usize)
                                 -> usize {
         unsafe {
+            // Cast to raw point to a TestState. Beware not to use Box::from_raw as it will
+            // try to destroy the struct that is managed elsewere
             let s: *mut &mut TestState = state as *mut &mut TestState;
+
+            // check on a known string in TestState to make sure the raw pointer is pointing
+            // to our TestState
             assert_eq!("libsoxr", (*s).check);
 
-            print!("setting {}/{} values for {} with {}\t", req_len, (**s).buffer.len(), (**s).check, (**s).command);
+            print!("setting {}/{} values for {} with {}\t", req_len, (**s).source_buffer.len(), (**s).check, (**s).command);
+
+            // just for this test, so we can check the output
             let value_to_use = (*s).value;
-            for value in (*s).buffer.iter_mut().take(req_len) {
+
+            // be aware: req_len is number of samples per channel, so for stereo you want to return
+            // req_len * 2 values in buf
+            for value in (*s).source_buffer.iter_mut().take(req_len) {
                 *value = value_to_use;
             }
-            assert_eq!(value_to_use, (*s).buffer[0]);
 
             {
-                let data: &[f32] = &(*s).buffer[..];
+                // buf is a pointer to a pointer to a buffer with source samples
+                // data is a pointer to the buffer, so data.as_ptr() is the same, but the raw
+                // pointer. Put it in *buf to tell libsoxr where to find the buffer
+                let data: &[f32] = &(*s).source_buffer[..];
                 *buf = data.as_ptr() as soxr_in_t;
             }
-            assert_eq!(*buf, (&(*s).buffer[0..]).as_ptr() as soxr_in_t);
 
+            // for testing: set command to non-zero to force end-of-input (eoi)
             if (*s).command == 0 {
                 println!("returning {:?}", req_len);
                 return req_len;
@@ -366,35 +406,43 @@ mod soxr_tests {
         }
     }
 
-    #[repr(C)]
+    // struct to hold state for input_fn
     struct TestState {
         check: &'static str,
         command: u32,
         value: f32,
-        buffer: [f32;100],
+        // use this buffer for source samples to avoid repeated allocations
+        source_buffer: [f32;100],
     }
 
     #[test]
     fn test_data_fn() {
         let mut s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 
+        // create state for input_fn
         let mut state = TestState {
             check: "libsoxr",
             command: 0,
             value: 2.3,
-            buffer: [1.2;100]
+            source_buffer: [1.2;100]
         };
+
+        // convert to raw pointer to pass into libsoxr using set_input
         let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
         assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
 
+        // create buffer for resampled data
         let mut data = [1.1f32; 200];
-        println!("first");
+        println!("first call");
         assert_eq!(200, s.output(&mut data[0..], 200));
         assert!(data[0] != 1.1);
 
+        // tell test_input_fn to return end-of-input (0)
         state.command = 1;
+        // other buffer for resampled data
         let mut buffer = [1.1f32; 200];
         println!("second");
+        // flush all data from libsoxr until end-of-input
         while s.output(&mut buffer[0..], 200) > 0 {
             print!(".{}", buffer[0]);
             assert!(buffer[0] != 1.1);

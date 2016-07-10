@@ -56,7 +56,7 @@ impl Soxr {
     /// Set error of Soxr engine
     pub fn set_error(&mut self, msg: String) -> Result<()> {
         self.error = CString::new(msg).unwrap();
-        let result = unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as *mut i8) };
+        let result = unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as api::soxr_error_t) };
         if result == ptr::null_mut() {
             Ok(())
         } else {
@@ -389,13 +389,13 @@ mod soxr_tests {
 
         let mut data = [1.1f32; 200];
         println!("first");
-        assert_eq!(200, s.output(&mut data[0..]));
+        assert_eq!(200, s.output(&mut data[0..], 200));
         assert!(data[0] != 1.1);
 
         state.command = 1;
         let mut buffer = [1.1f32; 200];
         println!("second");
-        while s.output(&mut buffer[0..]) > 0 {
+        while s.output(&mut buffer[0..], 200) > 0 {
             print!(".{}", buffer[0]);
             assert!(buffer[0] != 1.1);
         }

@@ -1,6 +1,7 @@
 //! For specifying the runtime settings of the resampler
 //! For specifying the data type of input and output
 use api;
+use libc;
 use datatype::Datatype;
 
 /// Wrapper for `soxr_runtime_spec_t`
@@ -80,7 +81,7 @@ pub struct QualitySpec {
 impl QualitySpec {
     pub fn new(quality: QualityRecipe, flags: QualityFlags) -> QualitySpec {
         QualitySpec {
-            quality_spec: unsafe { api::soxr_quality_spec(quality.to_recipe() as u64, flags.bits) },
+            quality_spec: unsafe { api::soxr_quality_spec(quality.to_recipe() as libc::c_ulong, flags.bits as libc::c_ulong) },
         }
     }
 

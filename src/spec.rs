@@ -43,12 +43,12 @@ impl IOSpec {
 }
 
 bitflags! {
-    pub flags QualityFlags: u64 {
-        const ROLLOFF_SMALL = api::SOXR_ROLLOFF_SMALL as u64,
-        const ROLLOFF_MEDIUM = api::SOXR_ROLLOFF_MEDIUM as u64,
-        const ROLLOFF_NONE = api::SOXR_ROLLOFF_NONE as u64,
-        const HI_PREC_CLOCK = api::SOXR_HI_PREC_CLOCK as u64,
-        const VR = api::SOXR_VR as u64,
+    pub flags QualityFlags: libc::c_ulong {
+        const ROLLOFF_SMALL = api::SOXR_ROLLOFF_SMALL as libc::c_ulong,
+        const ROLLOFF_MEDIUM = api::SOXR_ROLLOFF_MEDIUM as libc::c_ulong,
+        const ROLLOFF_NONE = api::SOXR_ROLLOFF_NONE as libc::c_ulong,
+        const HI_PREC_CLOCK = api::SOXR_HI_PREC_CLOCK as libc::c_ulong,
+        const VR = api::SOXR_VR as libc::c_ulong,
     }
 }
 

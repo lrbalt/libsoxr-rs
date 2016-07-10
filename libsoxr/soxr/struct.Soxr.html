@@ -47,11 +47,11 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-153' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#13-16' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-148' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#13-16' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Soxr {
     // some fields omitted
 }</pre><div class='docblock'><p>Wrapper for soxr_t</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-156' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#18-255' title='goto source code'>[src]</a></span></h3>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-158' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#18-281' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.create' class='method'><code>fn <a href='#method.create' class='fnname'>create</a>(input_rate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, output_rate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, num_channels: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, io_spec: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../libsoxr/spec/struct.IOSpec.html' title='libsoxr::spec::IOSpec'>IOSpec</a>&gt;, quality_spec: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../libsoxr/spec/struct.QualitySpec.html' title='libsoxr::spec::QualitySpec'>QualitySpec</a>&gt;, runtime_spec: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../libsoxr/spec/struct.RuntimeSpec.html' title='libsoxr::spec::RuntimeSpec'>RuntimeSpec</a>&gt;) -&gt; Result&lt;<a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a>&gt;</code></h4>
 <div class='docblock'><p>Create a new resampler</p>
 </div><h4 id='method.version' class='method'><code>fn <a href='#method.version' class='fnname'>version</a>() -&gt; &amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
@@ -73,7 +73,7 @@
 </div><h4 id='method.set_io_ratio' class='method'><code>fn <a href='#method.set_io_ratio' class='fnname'>set_io_ratio</a>(&amp;mut self, io_ratio: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>, slew_len: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; Result&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
 <div class='docblock'><p>For variable-rate resampling. See example # 5 of libsoxr repository for how to create a
 variable-rate resampler and how to use this function.</p>
-</div><h4 id='method.process' class='method'><code>fn <a href='#method.process' class='fnname'>process</a>&lt;I,&nbsp;O&gt;(&amp;self, buf_in: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>I<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, buf_out: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;mut [</a>O<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; Result&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
+</div><h4 id='method.process' class='method'><code>fn <a href='#method.process' class='fnname'>process</a>&lt;I, O&gt;(&amp;self, buf_in: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>I<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;, buf_out: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;mut [</a>O<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; Result&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>&gt;</code></h4>
 <div class='docblock'><p>Resamples <code>Some(buf_in)</code> into <code>buf_out</code>. Type is dependent on [IOSpec]. If you leave out
 [IOSpec] on create, it defaults to <code>f32</code>. Make sure that <code>buf_out</code> is large enough to hold
 the resampled data. Furthermore, to indicate end-of-input to the resampler, always end with
@@ -83,63 +83,92 @@ used and number of output samples places in &#39;buf_out&#39;</p>
 <div class='docblock'><p>Accepts a function  of type <code>soxr_input_fn_t</code></p>
 
 <ul>
-<li>The function is given input_state of type <code>soxr_fn_state_t</code> when called</li>
-<li>It is supplied the sample buffer that was given using <code>Soxr::output</code></li>
+<li>input - The function is given input_state of type <code>soxr_fn_state_t</code> when called</li>
+<li>input_state - the state data which libsoxr will pass to function <code>input</code>. Pass none to
+skip use of state data.</li>
+<li>max_ilen - the maximum number of samples per channel that can be asked of
+function <code>input</code>. Be aware that the output_buffer that is return from the function
+<code>input</code> needs to hold <code>max_ilen * number_of_channels</code> data. These boundaries are not
+statically checked by Rust or <code>libsoxr</code></li>
 </ul>
 
 <pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>state_data</span> <span class='op'>=</span> <span class='number'>4.0f32</span>;
-<span class='kw'>let</span> <span class='ident'>data_for_soxr</span> <span class='op'>=</span> <span class='ident'>Box</span>::<span class='ident'>into_raw</span>(<span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>state_data</span>));
-<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>s</span>.<span class='ident'>set_input</span>(<span class='ident'>test_input_fn</span>, <span class='prelude-val'>Some</span>(<span class='ident'>data_for_soxr</span> <span class='kw'>as</span> <span class='ident'>soxr_fn_state_t</span>), <span class='number'>10</span>).<span class='ident'>is_ok</span>());</pre>
-</div><h4 id='method.output' class='method'><code>fn <a href='#method.output' class='fnname'>output</a>&lt;S&gt;(&amp;self, data: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a>S<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
-<div class='docblock'><p>Resample and output a block of data using an  app-supplied input function.
+<span class='comment'>// struct to hold state for input_fn</span>
+<span class='kw'>struct</span> <span class='ident'>TestState</span> {
+    <span class='comment'>// use this buffer for source samples to avoid repeated allocations</span>
+    <span class='ident'>source_buffer</span>: [<span class='ident'>f32</span>;<span class='number'>100</span>],
+}
+
+[...]
+
+<span class='comment'>// create state for input_fn</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>state</span> <span class='op'>=</span> <span class='ident'>TestState</span> {
+    <span class='ident'>source_buffer</span>: [<span class='number'>0.0</span>;<span class='number'>100</span>]
+};
+
+<span class='comment'>// convert state to raw pointer to pass into libsoxr using set_input</span>
+<span class='kw'>let</span> <span class='ident'>state_data</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>Box</span>::<span class='ident'>into_raw</span>(<span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>state</span>)) <span class='kw'>as</span> <span class='ident'>soxr_fn_state_t</span>);
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>s</span>.<span class='ident'>set_input</span>(<span class='ident'>test_input_fn</span>, <span class='ident'>state_data</span>, <span class='number'>100</span>).<span class='ident'>is_ok</span>());</pre>
+
+<p>The <code>test_input_fn</code> used above can be defined as follows which assumed a
+<code>get_a_source_sample</code> function that returns one sample from the source that needs to be
+resampled:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> <span class='ident'>test_input_fn</span>(<span class='ident'>state</span>: <span class='ident'>soxr_fn_state_t</span>,
+                           <span class='ident'>buf</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>soxr_in_t</span>,
+                           <span class='ident'>req_len</span>: <span class='ident'>usize</span>)
+                           <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
+    <span class='kw'>unsafe</span> {
+        <span class='comment'>// Cast raw pointer to a TestState. Beware not to use Box::from_raw as it will</span>
+        <span class='comment'>// take ownership of the TestState and try to destroy the struct that is managed</span>
+        <span class='comment'>//elsewere</span>
+        <span class='kw'>let</span> <span class='ident'>s</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>TestState</span> <span class='op'>=</span> <span class='ident'>state</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>TestState</span>;
+
+        <span class='comment'>// be aware: req_len is number of samples per channel, so for stereo you want to return</span>
+        <span class='comment'>// req_len * 2 values in buf</span>
+        <span class='kw'>for</span> <span class='ident'>value</span> <span class='kw'>in</span> (<span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>source_buffer</span>.<span class='ident'>iter_mut</span>().<span class='ident'>take</span>(<span class='ident'>req_len</span>) {
+            <span class='op'>*</span><span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>get_a_source_sample</span>();
+        }
+
+        {
+            <span class='comment'>// buf is a pointer to a pointer to a buffer with source samples</span>
+            <span class='comment'>// data is a pointer to the buffer, so data.as_ptr() is the same, but the raw</span>
+            <span class='comment'>// pointer. Put it in *buf to tell libsoxr where to find the buffer.</span>
+            <span class='kw'>let</span> <span class='ident'>data</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>f32</span>] <span class='op'>=</span> <span class='kw-2'>&amp;</span>(<span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>source_buffer</span>[..];
+            <span class='op'>*</span><span class='ident'>buf</span> <span class='op'>=</span> <span class='ident'>data</span>.<span class='ident'>as_ptr</span>() <span class='kw'>as</span> <span class='ident'>soxr_in_t</span>;
+        }
+
+        <span class='comment'>// if source is &quot;empty&quot; return 0</span>
+        <span class='kw'>if</span> <span class='ident'>source_has_more_data</span>() {
+            <span class='kw'>return</span> <span class='ident'>req_len</span>;
+        } <span class='kw'>else</span> {
+            <span class='kw'>return</span> <span class='number'>0</span>;
+        }
+    }
+}</pre>
+</div><h4 id='method.output' class='method'><code>fn <a href='#method.output' class='fnname'>output</a>&lt;S&gt;(&amp;self, data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;mut [</a>S<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>, samples: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+<div class='docblock'><p>Resample and output a block of data using an app-supplied input function.
 This function must look and behave like <code>soxr_input_fn_t</code> and be registered with a
 previously created stream resampler using <code>set_input</code> then repeatedly call <code>output</code>.</p>
 
 <ul>
-<li>data - App-supplied buffer(s) for resampled data.
+<li>data - App-supplied buffer(s) for resampled data.</li>
+<li>samples - number of samples in buffer per channel, i.e. data.len() / number_of_channels
 returns number of samples in buffer</li>
 </ul>
 
 <pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>buffer</span> <span class='op'>=</span> [<span class='number'>1.1f32</span>; <span class='number'>100</span>];
-<span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>buffer</span>[..]);
-<span class='ident'>s</span>.<span class='ident'>output</span>(<span class='ident'>buf</span>);</pre>
-
-<p><code>buf</code> is send to the function set with <code>set_input</code> like so:</p>
-
-<pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>state_data</span> <span class='op'>=</span> <span class='number'>4.0f32</span>;
-<span class='kw'>let</span> <span class='ident'>data_for_soxr</span> <span class='op'>=</span> <span class='ident'>Box</span>::<span class='ident'>into_raw</span>(<span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>state_data</span>));
-<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>s</span>.<span class='ident'>set_input</span>(<span class='ident'>test_input_fn</span>, <span class='prelude-val'>Some</span>(<span class='ident'>data_for_soxr</span> <span class='kw'>as</span> <span class='ident'>soxr_fn_state_t</span>), <span class='number'>10</span>).<span class='ident'>is_ok</span>());</pre>
-
-<p>and can be recovered using</p>
-
-<pre class='rust rust-example-rendered'>
-<span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> <span class='ident'>test_input_fn</span>(<span class='ident'>state</span>: <span class='ident'>soxr_fn_state_t</span>,
-                            <span class='ident'>buf</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>soxr_in_t</span>,
-                            <span class='ident'>req_len</span>: <span class='ident'>usize</span>)
-                            <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-    <span class='comment'>// convert back state into Box&lt;f32&gt;</span>
-    <span class='kw'>let</span> <span class='ident'>state_data</span>: <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>Box</span>::<span class='ident'>from_raw</span>(<span class='ident'>state</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>f32</span>) };
-    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>4.0</span>, <span class='op'>*</span><span class='ident'>state_data</span>);
-
-    <span class='comment'>// convert buf back into Box&lt;&amp;mut [f32]&gt;</span>
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span>: <span class='ident'>Box</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>f32</span>]<span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>Box</span>::<span class='ident'>from_raw</span>(<span class='op'>*</span><span class='ident'>buf</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>f32</span>]) };
-    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>1.1</span>, (<span class='op'>*</span><span class='ident'>data</span>)[<span class='number'>0</span>]);
-    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>1.1</span>, (<span class='op'>*</span><span class='ident'>data</span>)[<span class='number'>99</span>]);
-    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>10</span>, <span class='ident'>req_len</span>);
-
-    <span class='comment'>// return end-of-input by setting first value of buf</span>
-    (<span class='op'>*</span><span class='ident'>data</span>)[<span class='number'>0</span>] <span class='op'>=</span> <span class='number'>0.0</span>;
-    <span class='number'>0</span>
-}</pre>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-146' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#12' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-<div class='docblock'><p>Formats the value using the given formatter.</p>
-</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-229' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#257-261' title='goto source code'>[src]</a></span></h3>
+<span class='comment'>// call output using a buffer of 100 mono samples. For stereo devide by 2, so this buffer</span>
+<span class='comment'>// could hold 100 / number_of_channels = 50 stereo samples.</span>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buffer</span> <span class='op'>=</span> [<span class='number'>0.0f32</span>; <span class='number'>100</span>];
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>s</span>.<span class='ident'>output</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buffer</span>[..], <span class='ident'>buffer</span>.<span class='ident'>len</span>()) <span class='op'>&gt;</span> <span class='number'>0</span>);</pre>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-228' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#283-287' title='goto source code'>[src]</a></span></h3>
 <div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
 <div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../libsoxr/soxr/struct.Soxr.html' title='libsoxr::soxr::Soxr'>Soxr</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-151' class='srclink' href='../../src/libsoxr/src/soxr.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
 

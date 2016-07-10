@@ -47,7 +47,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-103' class='srclink' href='../../src/libsoxr/src/api.rs.html#239' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-104' class='srclink' href='../../src/libsoxr/src/api.rs.html#239' title='goto source code'>[src]</a></span></h1>
 <pre class='rust fn'>pub unsafe extern fn soxr_output(resampler: <a class='type' href='../../libsoxr/api/type.soxr_t.html' title='libsoxr::api::soxr_t'>soxr_t</a>, data: <a class='type' href='../../libsoxr/api/type.soxr_out_t.html' title='libsoxr::api::soxr_out_t'>soxr_out_t</a>, olen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></pre><div class='docblock'><p>Resample and output a block of data. If using an app-supplied input function, it must
 look and behave like <code>soxr_input_fn_t</code> and be registered with a previously created stream
 resampler using <code>soxr_set_input_fn</code> then repeatedly call <code>soxr_output</code>.</p>

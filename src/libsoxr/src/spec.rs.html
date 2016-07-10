@@ -155,10 +155,12 @@
 <span id="111">111</span>
 <span id="112">112</span>
 <span id="113">113</span>
+<span id="114">114</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! For specifying the runtime settings of the resampler</span>
 <span class='doccomment'>//! For specifying the data type of input and output</span>
 <span class='kw'>use</span> <span class='ident'>api</span>;
+<span class='kw'>use</span> <span class='ident'>libc</span>;
 <span class='kw'>use</span> <span class='ident'>datatype</span>::<span class='ident'>Datatype</span>;
 
 <span class='doccomment'>/// Wrapper for `soxr_runtime_spec_t`</span>
@@ -200,12 +202,12 @@
 }
 
 <span class='macro'>bitflags</span><span class='macro'>!</span> {
-    <span class='kw'>pub</span> <span class='ident'>flags</span> <span class='ident'>QualityFlags</span>: <span class='ident'>u64</span> {
-        <span class='kw'>const</span> <span class='ident'>ROLLOFF_SMALL</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_SMALL</span> <span class='kw'>as</span> <span class='ident'>u64</span>,
-        <span class='kw'>const</span> <span class='ident'>ROLLOFF_MEDIUM</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_MEDIUM</span> <span class='kw'>as</span> <span class='ident'>u64</span>,
-        <span class='kw'>const</span> <span class='ident'>ROLLOFF_NONE</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_NONE</span> <span class='kw'>as</span> <span class='ident'>u64</span>,
-        <span class='kw'>const</span> <span class='ident'>HI_PREC_CLOCK</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_HI_PREC_CLOCK</span> <span class='kw'>as</span> <span class='ident'>u64</span>,
-        <span class='kw'>const</span> <span class='ident'>VR</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_VR</span> <span class='kw'>as</span> <span class='ident'>u64</span>,
+    <span class='kw'>pub</span> <span class='ident'>flags</span> <span class='ident'>QualityFlags</span>: <span class='ident'>libc</span>::<span class='ident'>c_ulong</span> {
+        <span class='kw'>const</span> <span class='ident'>ROLLOFF_SMALL</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_SMALL</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
+        <span class='kw'>const</span> <span class='ident'>ROLLOFF_MEDIUM</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_MEDIUM</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
+        <span class='kw'>const</span> <span class='ident'>ROLLOFF_NONE</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_ROLLOFF_NONE</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
+        <span class='kw'>const</span> <span class='ident'>HI_PREC_CLOCK</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_HI_PREC_CLOCK</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
+        <span class='kw'>const</span> <span class='ident'>VR</span> <span class='op'>=</span> <span class='ident'>api</span>::<span class='ident'>SOXR_VR</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
     }
 }
 
@@ -238,7 +240,7 @@
 <span class='kw'>impl</span> <span class='ident'>QualitySpec</span> {
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>quality</span>: <span class='ident'>QualityRecipe</span>, <span class='ident'>flags</span>: <span class='ident'>QualityFlags</span>) <span class='op'>-&gt;</span> <span class='ident'>QualitySpec</span> {
         <span class='ident'>QualitySpec</span> {
-            <span class='ident'>quality_spec</span>: <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_quality_spec</span>(<span class='ident'>quality</span>.<span class='ident'>to_recipe</span>() <span class='kw'>as</span> <span class='ident'>u64</span>, <span class='ident'>flags</span>.<span class='ident'>bits</span>) },
+            <span class='ident'>quality_spec</span>: <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_quality_spec</span>(<span class='ident'>quality</span>.<span class='ident'>to_recipe</span>() <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>, <span class='ident'>flags</span>.<span class='ident'>bits</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>) },
         }
     }
 

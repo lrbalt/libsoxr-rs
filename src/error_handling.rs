@@ -13,11 +13,11 @@ pub enum ErrorType {
 
 impl fmt::Display for ErrorType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &ErrorType::InvalidString => write!(f, "Invalid string"),
-            &ErrorType::CreateError(ref s) => write!(f, "Could not create soxr struct: {}", s),
-            &ErrorType::ChangeError(ref s) => write!(f, "Could not change soxr struct: {}", s),
-            &ErrorType::ProcessError(ref s) => write!(f, "Could not process data: {}", s),
+        match *self {
+            ErrorType::InvalidString => write!(f, "Invalid string"),
+            ErrorType::CreateError(ref s) => write!(f, "Could not create soxr struct: {}", s),
+            ErrorType::ChangeError(ref s) => write!(f, "Could not change soxr struct: {}", s),
+            ErrorType::ProcessError(ref s) => write!(f, "Could not process data: {}", s),
         }
     }
 }

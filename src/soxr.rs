@@ -8,7 +8,7 @@ use api;
 use error_handling::{Error, ErrorType, Result};
 use spec::{IOSpec, QualitySpec, RuntimeSpec};
 
-/// Wrapper for soxr_t
+/// Wrapper for `soxr_t`
 #[derive(Debug)]
 pub struct Soxr {
     soxr: api::soxr_t,

@@ -23,20 +23,20 @@ pub enum soxr {}
 pub type soxr_t = *mut soxr;
 pub type soxr_error_t = *const c_char;
 
-/// If needed by the input function. As given to soxr_set_input_fn
+/// If needed by the input function. As given to `soxr_set_input_fn`
 pub type soxr_fn_state_t = *const c_void;
-/// Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.
+/// Either a `soxr_cbuf_t` or `soxr_cbufs_t`, depending on `itype` in `soxr_io_spec_t`.
 pub type soxr_in_t = *const c_void;
-/// Either a soxr_buf_t or soxr_bufs_t,depending on otype in soxr_io_spec_t.
+/// Either a `soxr_buf_t` or `soxr_bufs_t`,depending on `otype` in `soxr_io_spec_t`.
 pub type soxr_out_t = *mut c_void;
 
 /// Function to supply data to be resampled.
 ///
-/// * input_fn_state - As given to soxr_set_input_fn (below).
-/// * data - Returned data; see below. N.B. ptr to ptr(s)
-/// * requested_len - Samples per channel, >= returned data_len.
+/// * `input_fn_state` - As given to `soxr_set_input_fn` (below).
+/// * `data` - Returned data; see below. N.B. ptr to ptr(s)
+/// * `requested_len` - Samples per channel, >= returned `data_len`.
 ///
-/// returns data_len
+/// returns `data_len`
 ///
 /// ```ignore
 ///  data_len  *data     Indicates    Meaning
@@ -54,11 +54,11 @@ pub type soxr_input_fn_t = extern "C" fn(*const c_void, *mut soxr_in_t, usize) -
 /// Datatypes supported for I/O to/from the resampler:
 ///
 /// * Internal; do not use (left out):
-///   * SOXR_FLOAT32, SOXR_FLOAT64, SOXR_INT32, SOXR_INT16, SOXR_SPLIT = 4,
+///   * `SOXR_FLOAT32`, `SOXR_FLOAT64`, `SOXR_INT32`, `SOXR_INT16`, `SOXR_SPLIT` = 4,
 /// * Use for interleaved channels:
-///   * SOXR_FLOAT32_I = SOXR_FLOAT32, SOXR_FLOAT64_I, SOXR_INT32_I, SOXR_INT16_I,
+///   * `SOXR_FLOAT32_I` = `SOXR_FLOAT32`, `SOXR_FLOAT64_I`, `SOXR_INT32_I`, `SOXR_INT16_I`,
 /// * Use for split channels:
-///   * SOXR_FLOAT32_S = SOXR_SPLIT  , SOXR_FLOAT64_S, SOXR_INT32_S, SOXR_INT16_S
+///   * `SOXR_FLOAT32_S` = `SOXR_SPLIT`  , `SOXR_FLOAT64_S`, `SOXR_INT32_S`, `SOXR_INT16_S`
 #[repr(C)]
 pub enum soxr_datatype_t {
     SOXR_FLOAT32_I = 0 as isize,

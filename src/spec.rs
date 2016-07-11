@@ -81,7 +81,10 @@ pub struct QualitySpec {
 impl QualitySpec {
     pub fn new(quality: QualityRecipe, flags: QualityFlags) -> QualitySpec {
         QualitySpec {
-            quality_spec: unsafe { api::soxr_quality_spec(quality.to_recipe() as libc::c_ulong, flags.bits as libc::c_ulong) },
+            quality_spec: unsafe {
+                api::soxr_quality_spec(quality.to_recipe() as libc::c_ulong,
+                                       flags.bits as libc::c_ulong)
+            },
         }
     }
 

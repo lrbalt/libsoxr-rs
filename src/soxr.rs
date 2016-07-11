@@ -31,9 +31,8 @@ impl Soxr {
         let io = io_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
         let rt = runtime_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
 
-        let soxr = unsafe {
-            api::soxr_create(input_rate, output_rate, num_channels, error, io, q, rt)
-        };
+        let soxr =
+            unsafe { api::soxr_create(input_rate, output_rate, num_channels, error, io, q, rt) };
 
         if error == ptr::null_mut() {
             Ok(Soxr {
@@ -43,8 +42,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::new".into()),
                            ErrorType::CreateError(from_const("Soxr::new", error)
-                                                      .unwrap()
-                                                      .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -56,14 +55,15 @@ impl Soxr {
     /// Set error of Soxr engine
     pub fn set_error(&mut self, msg: String) -> Result<()> {
         self.error = CString::new(msg).unwrap();
-        let result = unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as api::soxr_error_t) };
+        let result =
+            unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as api::soxr_error_t) };
         if result == ptr::null_mut() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::new".into()),
                            ErrorType::ChangeError(from_const("Soxr::set_error", result)
-                                                      .unwrap()
-                                                      .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -75,8 +75,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::set_num_channels".into()),
                            ErrorType::ChangeError(from_const("Soxr::set_num_channels", error)
-                                                      .unwrap()
-                                                      .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -114,8 +114,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::clear".into()),
                            ErrorType::ChangeError(from_const("Soxr::clear", error)
-                                                      .unwrap()
-                                                      .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -128,8 +128,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::set_io_ratio".into()),
                            ErrorType::ChangeError(from_const("Soxr::set_io_ratio", error)
-                                                      .unwrap()
-                                                      .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -166,8 +166,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::process".into()),
                            ErrorType::ProcessError(from_const("Soxr::process", error)
-                                                       .unwrap()
-                                                       .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -215,8 +215,8 @@ impl Soxr {
     ///         //elsewere
     ///         let s: *mut &mut TestState = state as *mut &mut TestState;
     ///
-    ///         // be aware: req_len is number of samples per channel, so for stereo you want to return
-    ///         // req_len * 2 values in buf
+    ///         // be aware: req_len is number of samples per channel, so for stereo you want
+    ///         // to return req_len * 2 values in buf
     ///         for value in (*s).source_buffer.iter_mut().take(req_len) {
     ///             *value = get_a_source_sample();
     ///         }
@@ -256,8 +256,8 @@ impl Soxr {
         } else {
             Err(Error::new(Some("Soxr::set_input".into()),
                            ErrorType::ProcessError(from_const("Soxr::set_input", error)
-                                                       .unwrap()
-                                                       .to_string())))
+                               .unwrap()
+                               .to_string())))
         }
     }
 
@@ -376,7 +376,11 @@ mod soxr_tests {
             // to our TestState
             assert_eq!("libsoxr", (*s).check);
 
-            print!("setting {}/{} values for {} with {}\t", req_len, (**s).source_buffer.len(), (**s).check, (**s).command);
+            print!("setting {}/{} values for {} with {}\t",
+                   req_len,
+                   (**s).source_buffer.len(),
+                   (**s).check,
+                   (**s).command);
 
             // just for this test, so we can check the output
             let value_to_use = (*s).value;
@@ -412,7 +416,7 @@ mod soxr_tests {
         command: u32,
         value: f32,
         // use this buffer for source samples to avoid repeated allocations
-        source_buffer: [f32;100],
+        source_buffer: [f32; 100],
     }
 
     #[test]
@@ -424,7 +428,7 @@ mod soxr_tests {
             check: "libsoxr",
             command: 0,
             value: 2.3,
-            source_buffer: [1.2;100]
+            source_buffer: [1.2; 100],
         };
 
         // convert to raw pointer to pass into libsoxr using set_input

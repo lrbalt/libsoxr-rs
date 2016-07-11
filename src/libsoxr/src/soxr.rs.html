@@ -494,6 +494,10 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Rust API for SOXR.</span>
 
@@ -528,9 +532,8 @@
         <span class='kw'>let</span> <span class='ident'>io</span> <span class='op'>=</span> <span class='ident'>io_spec</span>.<span class='ident'>map_or</span>(<span class='ident'>ptr</span>::<span class='ident'>null</span>(), <span class='op'>|</span><span class='ident'>spec</span><span class='op'>|</span> <span class='ident'>spec</span>.<span class='ident'>soxr_spec</span>());
         <span class='kw'>let</span> <span class='ident'>rt</span> <span class='op'>=</span> <span class='ident'>runtime_spec</span>.<span class='ident'>map_or</span>(<span class='ident'>ptr</span>::<span class='ident'>null</span>(), <span class='op'>|</span><span class='ident'>spec</span><span class='op'>|</span> <span class='ident'>spec</span>.<span class='ident'>soxr_spec</span>());
 
-        <span class='kw'>let</span> <span class='ident'>soxr</span> <span class='op'>=</span> <span class='kw'>unsafe</span> {
-            <span class='ident'>api</span>::<span class='ident'>soxr_create</span>(<span class='ident'>input_rate</span>, <span class='ident'>output_rate</span>, <span class='ident'>num_channels</span>, <span class='ident'>error</span>, <span class='ident'>io</span>, <span class='ident'>q</span>, <span class='ident'>rt</span>)
-        };
+        <span class='kw'>let</span> <span class='ident'>soxr</span> <span class='op'>=</span>
+            <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_create</span>(<span class='ident'>input_rate</span>, <span class='ident'>output_rate</span>, <span class='ident'>num_channels</span>, <span class='ident'>error</span>, <span class='ident'>io</span>, <span class='ident'>q</span>, <span class='ident'>rt</span>) };
 
         <span class='kw'>if</span> <span class='ident'>error</span> <span class='op'>==</span> <span class='ident'>ptr</span>::<span class='ident'>null_mut</span>() {
             <span class='prelude-val'>Ok</span>(<span class='ident'>Soxr</span> {
@@ -540,8 +543,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::new&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>CreateError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::new&quot;</span>, <span class='ident'>error</span>)
-                                                      .<span class='ident'>unwrap</span>()
-                                                      .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -553,14 +556,15 @@
     <span class='doccomment'>/// Set error of Soxr engine</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_error</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>msg</span>: <span class='ident'>String</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='ident'>error</span> <span class='op'>=</span> <span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>msg</span>).<span class='ident'>unwrap</span>();
-        <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_set_error</span>(<span class='self'>self</span>.<span class='ident'>soxr</span>, <span class='self'>self</span>.<span class='ident'>error</span>.<span class='ident'>as_ptr</span>() <span class='kw'>as</span> <span class='ident'>api</span>::<span class='ident'>soxr_error_t</span>) };
+        <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span>
+            <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_set_error</span>(<span class='self'>self</span>.<span class='ident'>soxr</span>, <span class='self'>self</span>.<span class='ident'>error</span>.<span class='ident'>as_ptr</span>() <span class='kw'>as</span> <span class='ident'>api</span>::<span class='ident'>soxr_error_t</span>) };
         <span class='kw'>if</span> <span class='ident'>result</span> <span class='op'>==</span> <span class='ident'>ptr</span>::<span class='ident'>null_mut</span>() {
             <span class='prelude-val'>Ok</span>(())
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::new&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ChangeError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::set_error&quot;</span>, <span class='ident'>result</span>)
-                                                      .<span class='ident'>unwrap</span>()
-                                                      .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -572,8 +576,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::set_num_channels&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ChangeError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::set_num_channels&quot;</span>, <span class='ident'>error</span>)
-                                                      .<span class='ident'>unwrap</span>()
-                                                      .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -611,8 +615,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::clear&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ChangeError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::clear&quot;</span>, <span class='ident'>error</span>)
-                                                      .<span class='ident'>unwrap</span>()
-                                                      .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -625,8 +629,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::set_io_ratio&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ChangeError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::set_io_ratio&quot;</span>, <span class='ident'>error</span>)
-                                                      .<span class='ident'>unwrap</span>()
-                                                      .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -663,8 +667,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::process&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ProcessError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::process&quot;</span>, <span class='ident'>error</span>)
-                                                       .<span class='ident'>unwrap</span>()
-                                                       .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -712,8 +716,8 @@
     <span class='doccomment'>///         //elsewere</span>
     <span class='doccomment'>///         let s: *mut &amp;mut TestState = state as *mut &amp;mut TestState;</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>///         // be aware: req_len is number of samples per channel, so for stereo you want to return</span>
-    <span class='doccomment'>///         // req_len * 2 values in buf</span>
+    <span class='doccomment'>///         // be aware: req_len is number of samples per channel, so for stereo you want</span>
+    <span class='doccomment'>///         // to return req_len * 2 values in buf</span>
     <span class='doccomment'>///         for value in (*s).source_buffer.iter_mut().take(req_len) {</span>
     <span class='doccomment'>///             *value = get_a_source_sample();</span>
     <span class='doccomment'>///         }</span>
@@ -753,8 +757,8 @@
         } <span class='kw'>else</span> {
             <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='prelude-val'>Some</span>(<span class='string'>&quot;Soxr::set_input&quot;</span>.<span class='ident'>into</span>()),
                            <span class='ident'>ErrorType</span>::<span class='ident'>ProcessError</span>(<span class='ident'>from_const</span>(<span class='string'>&quot;Soxr::set_input&quot;</span>, <span class='ident'>error</span>)
-                                                       .<span class='ident'>unwrap</span>()
-                                                       .<span class='ident'>to_string</span>())))
+                               .<span class='ident'>unwrap</span>()
+                               .<span class='ident'>to_string</span>())))
         }
     }
 
@@ -873,7 +877,11 @@
             <span class='comment'>// to our TestState</span>
             <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='string'>&quot;libsoxr&quot;</span>, (<span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>check</span>);
 
-            <span class='macro'>print</span><span class='macro'>!</span>(<span class='string'>&quot;setting {}/{} values for {} with {}\t&quot;</span>, <span class='ident'>req_len</span>, (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>source_buffer</span>.<span class='ident'>len</span>(), (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>check</span>, (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>command</span>);
+            <span class='macro'>print</span><span class='macro'>!</span>(<span class='string'>&quot;setting {}/{} values for {} with {}\t&quot;</span>,
+                   <span class='ident'>req_len</span>,
+                   (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>source_buffer</span>.<span class='ident'>len</span>(),
+                   (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>check</span>,
+                   (<span class='op'>*</span><span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>command</span>);
 
             <span class='comment'>// just for this test, so we can check the output</span>
             <span class='kw'>let</span> <span class='ident'>value_to_use</span> <span class='op'>=</span> (<span class='op'>*</span><span class='ident'>s</span>).<span class='ident'>value</span>;
@@ -909,7 +917,7 @@
         <span class='ident'>command</span>: <span class='ident'>u32</span>,
         <span class='ident'>value</span>: <span class='ident'>f32</span>,
         <span class='comment'>// use this buffer for source samples to avoid repeated allocations</span>
-        <span class='ident'>source_buffer</span>: [<span class='ident'>f32</span>;<span class='number'>100</span>],
+        <span class='ident'>source_buffer</span>: [<span class='ident'>f32</span>; <span class='number'>100</span>],
     }
 
     <span class='attribute'>#[<span class='ident'>test</span>]</span>
@@ -921,7 +929,7 @@
             <span class='ident'>check</span>: <span class='string'>&quot;libsoxr&quot;</span>,
             <span class='ident'>command</span>: <span class='number'>0</span>,
             <span class='ident'>value</span>: <span class='number'>2.3</span>,
-            <span class='ident'>source_buffer</span>: [<span class='number'>1.2</span>;<span class='number'>100</span>]
+            <span class='ident'>source_buffer</span>: [<span class='number'>1.2</span>; <span class='number'>100</span>],
         };
 
         <span class='comment'>// convert to raw pointer to pass into libsoxr using set_input</span>

@@ -156,6 +156,9 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! For specifying the runtime settings of the resampler</span>
 <span class='doccomment'>//! For specifying the data type of input and output</span>
@@ -240,7 +243,10 @@
 <span class='kw'>impl</span> <span class='ident'>QualitySpec</span> {
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>quality</span>: <span class='ident'>QualityRecipe</span>, <span class='ident'>flags</span>: <span class='ident'>QualityFlags</span>) <span class='op'>-&gt;</span> <span class='ident'>QualitySpec</span> {
         <span class='ident'>QualitySpec</span> {
-            <span class='ident'>quality_spec</span>: <span class='kw'>unsafe</span> { <span class='ident'>api</span>::<span class='ident'>soxr_quality_spec</span>(<span class='ident'>quality</span>.<span class='ident'>to_recipe</span>() <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>, <span class='ident'>flags</span>.<span class='ident'>bits</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>) },
+            <span class='ident'>quality_spec</span>: <span class='kw'>unsafe</span> {
+                <span class='ident'>api</span>::<span class='ident'>soxr_quality_spec</span>(<span class='ident'>quality</span>.<span class='ident'>to_recipe</span>() <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>,
+                                       <span class='ident'>flags</span>.<span class='ident'>bits</span> <span class='kw'>as</span> <span class='ident'>libc</span>::<span class='ident'>c_ulong</span>)
+            },
         }
     }
 

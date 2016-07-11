@@ -357,20 +357,20 @@
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>soxr</span>;
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_error_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>;
 
-<span class='doccomment'>/// If needed by the input function. As given to soxr_set_input_fn</span>
+<span class='doccomment'>/// If needed by the input function. As given to `soxr_set_input_fn`</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_fn_state_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>;
-<span class='doccomment'>/// Either a soxr_cbuf_t or soxr_cbufs_t, depending on itype in soxr_io_spec_t.</span>
+<span class='doccomment'>/// Either a `soxr_cbuf_t` or `soxr_cbufs_t`, depending on `itype` in `soxr_io_spec_t`.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_in_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>;
-<span class='doccomment'>/// Either a soxr_buf_t or soxr_bufs_t,depending on otype in soxr_io_spec_t.</span>
+<span class='doccomment'>/// Either a `soxr_buf_t` or `soxr_bufs_t`,depending on `otype` in `soxr_io_spec_t`.</span>
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>soxr_out_t</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>;
 
 <span class='doccomment'>/// Function to supply data to be resampled.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// * input_fn_state - As given to soxr_set_input_fn (below).</span>
-<span class='doccomment'>/// * data - Returned data; see below. N.B. ptr to ptr(s)</span>
-<span class='doccomment'>/// * requested_len - Samples per channel, &gt;= returned data_len.</span>
+<span class='doccomment'>/// * `input_fn_state` - As given to `soxr_set_input_fn` (below).</span>
+<span class='doccomment'>/// * `data` - Returned data; see below. N.B. ptr to ptr(s)</span>
+<span class='doccomment'>/// * `requested_len` - Samples per channel, &gt;= returned `data_len`.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// returns data_len</span>
+<span class='doccomment'>/// returns `data_len`</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// ```ignore</span>
 <span class='doccomment'>///  data_len  *data     Indicates    Meaning</span>
@@ -388,11 +388,11 @@
 <span class='doccomment'>/// Datatypes supported for I/O to/from the resampler:</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// * Internal; do not use (left out):</span>
-<span class='doccomment'>///   * SOXR_FLOAT32, SOXR_FLOAT64, SOXR_INT32, SOXR_INT16, SOXR_SPLIT = 4,</span>
+<span class='doccomment'>///   * `SOXR_FLOAT32`, `SOXR_FLOAT64`, `SOXR_INT32`, `SOXR_INT16`, `SOXR_SPLIT` = 4,</span>
 <span class='doccomment'>/// * Use for interleaved channels:</span>
-<span class='doccomment'>///   * SOXR_FLOAT32_I = SOXR_FLOAT32, SOXR_FLOAT64_I, SOXR_INT32_I, SOXR_INT16_I,</span>
+<span class='doccomment'>///   * `SOXR_FLOAT32_I` = `SOXR_FLOAT32`, `SOXR_FLOAT64_I`, `SOXR_INT32_I`, `SOXR_INT16_I`,</span>
 <span class='doccomment'>/// * Use for split channels:</span>
-<span class='doccomment'>///   * SOXR_FLOAT32_S = SOXR_SPLIT  , SOXR_FLOAT64_S, SOXR_INT32_S, SOXR_INT16_S</span>
+<span class='doccomment'>///   * `SOXR_FLOAT32_S` = `SOXR_SPLIT`  , `SOXR_FLOAT64_S`, `SOXR_INT32_S`, `SOXR_INT16_S`</span>
 <span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>soxr_datatype_t</span> {
     <span class='ident'>SOXR_FLOAT32_I</span> <span class='op'>=</span> <span class='number'>0</span> <span class='kw'>as</span> <span class='ident'>isize</span>,

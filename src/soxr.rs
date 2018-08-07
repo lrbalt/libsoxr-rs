@@ -301,7 +301,7 @@ mod soxr_tests {
     #[test]
     fn test_create() {
         use datatype::Datatype;
-        use spec::{QualityRecipe, ROLLOFF_SMALL};
+        use spec::{QualityRecipe, QualityFlags};
 
         let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
         assert!(s.is_ok());
@@ -309,7 +309,7 @@ mod soxr_tests {
                          44100.0,
                          2,
                          Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
-                         Some(QualitySpec::new(QualityRecipe::High, ROLLOFF_SMALL)),
+                         Some(QualitySpec::new(QualityRecipe::High, QualityFlags::ROLLOFF_SMALL)),
                          Some(RuntimeSpec::new(4)));
         assert!(s.is_ok());
     }

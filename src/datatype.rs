@@ -16,8 +16,8 @@ pub enum Datatype {
 
 impl Datatype {
     /// helper function to convert from `Datatype` to `soxr_datatype_t`
-    pub fn to_soxr_datatype(&self) -> api::soxr_datatype_t {
-        match *self {
+    pub fn to_soxr_datatype(self) -> api::soxr_datatype_t {
+        match self {
             Datatype::Float32I => api::soxr_datatype_t::SOXR_FLOAT32_I,
             Datatype::Float64I => api::soxr_datatype_t::SOXR_FLOAT64_I,
             Datatype::Int32I => api::soxr_datatype_t::SOXR_INT32_I,

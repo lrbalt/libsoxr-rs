@@ -79,10 +79,10 @@ pub struct QualitySpec {
 }
 
 impl QualitySpec {
-    pub fn new(quality: QualityRecipe, flags: QualityFlags) -> QualitySpec {
+    pub fn new(quality: &QualityRecipe, flags: QualityFlags) -> QualitySpec {
         QualitySpec {
             quality_spec: unsafe {
-                api::soxr_quality_spec(quality.to_recipe() as libc::c_ulong,
+                api::soxr_quality_spec(libc::c_ulong::from(quality.to_recipe()),
                                        flags.bits as libc::c_ulong)
             },
         }
@@ -111,7 +111,7 @@ fn test_create_runtime_spec() {
 
 #[test]
 fn test_create_quality_spec() {
-    let spec = QualitySpec::new(QualityRecipe::High, QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM);
+    let spec = QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM);
     let result = QualityFlags::from_bits_truncate(spec.soxr_spec().flags);
     assert!(result.contains(QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM));
 }

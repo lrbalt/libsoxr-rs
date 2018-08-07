@@ -34,9 +34,9 @@ impl Soxr {
         let soxr =
             unsafe { api::soxr_create(input_rate, output_rate, num_channels, error, io, q, rt) };
 
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok(Soxr {
-                soxr: soxr,
+                soxr,
                 error: CString::new("").unwrap(),
             })
         } else {
@@ -57,7 +57,7 @@ impl Soxr {
         self.error = CString::new(msg).unwrap();
         let result =
             unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as api::soxr_error_t) };
-        if result == ptr::null_mut() {
+        if result.is_null() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::new".into()),
@@ -70,7 +70,7 @@ impl Soxr {
     /// Change number of channels after creating Soxr object
     pub fn set_num_channels(&self, num_channels: u32) -> Result<()> {
         let error = unsafe { api::soxr_set_num_channels(self.soxr, num_channels) };
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::set_num_channels".into()),
@@ -84,7 +84,7 @@ impl Soxr {
     pub fn error(&self) -> Option<String> {
         let error = unsafe { api::soxr_error(self.soxr) };
         println!("error: {:?}", error);
-        if error == ptr::null_mut() {
+        if error.is_null() {
             None
         } else {
             Some(from_const("Soxr::error", error).unwrap().to_string())
@@ -109,7 +109,7 @@ impl Soxr {
     /// Ready for fresh signal, same config.
     pub fn clear(&mut self) -> Result<()> {
         let error = unsafe { api::soxr_clear(self.soxr) };
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::clear".into()),
@@ -123,7 +123,7 @@ impl Soxr {
     /// variable-rate resampler and how to use this function.
     pub fn set_io_ratio(&mut self, io_ratio: f64, slew_len: usize) -> Result<()> {
         let error = unsafe { api::soxr_set_io_ratio(self.soxr, io_ratio, slew_len) };
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::set_io_ratio".into()),
@@ -161,7 +161,7 @@ impl Soxr {
                                   &mut odone)
             },
         };
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok((idone, odone))
         } else {
             Err(Error::new(Some("Soxr::process".into()),
@@ -251,7 +251,7 @@ impl Soxr {
                                    }) as api::soxr_fn_state_t,
                                    max_ilen)
         };
-        if error == ptr::null_mut() {
+        if error.is_null() {
             Ok(())
         } else {
             Err(Error::new(Some("Soxr::set_input".into()),
@@ -309,7 +309,7 @@ mod soxr_tests {
                          44100.0,
                          2,
                          Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
-                         Some(QualitySpec::new(QualityRecipe::High, QualityFlags::ROLLOFF_SMALL)),
+                         Some(QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL)),
                          Some(RuntimeSpec::new(4)));
         assert!(s.is_ok());
     }
@@ -451,6 +451,6 @@ mod soxr_tests {
             print!(".{}", buffer[0]);
             assert!(buffer[0] != 1.1);
         }
-        println!("");
+        println!();
     }
 }

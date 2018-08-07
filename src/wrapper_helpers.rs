@@ -1,12 +1,11 @@
 //! Convenience helper functions to handle conversion between C-types and Rust-types
 
-use std::ptr;
 use std::ffi::CStr;
 use libc::{c_void, c_char, free};
 use error_handling::{Error, Result};
 
 pub fn from_const<'a>(func: &'static str, s: *const c_char) -> Result<&'a str> {
-    if s == ptr::null() {
+    if s.is_null() {
         return Err(Error::invalid_str(func));
     };
     let cstr = unsafe { CStr::from_ptr(s) };
@@ -14,7 +13,7 @@ pub fn from_const<'a>(func: &'static str, s: *const c_char) -> Result<&'a str> {
 }
 
 pub fn _from_alloc(func: &'static str, s: *const c_char) -> Result<String> {
-    if s == ptr::null_mut() {
+    if s.is_null() {
         return Err(Error::invalid_str(func));
     };
     let cstr = unsafe { CStr::from_ptr(s) };

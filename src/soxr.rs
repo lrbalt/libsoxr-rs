@@ -1,12 +1,12 @@
 //! Rust API for SOXR.
 
-use std::ffi::CString;
-use std::ptr;
-use libc::{c_char, c_void};
-use wrapper_helpers::from_const;
 use api;
 use error_handling::{Error, ErrorType, Result};
+use libc::{c_char, c_void};
 use spec::{IOSpec, QualitySpec, RuntimeSpec};
+use std::ffi::CString;
+use std::ptr;
+use wrapper_helpers::from_const;
 
 /// Wrapper for `soxr_t`
 #[derive(Debug)]
@@ -17,14 +17,14 @@ pub struct Soxr {
 
 impl Soxr {
     /// Create a new resampler
-    pub fn create(input_rate: f64,
-                  output_rate: f64,
-                  num_channels: u32,
-                  io_spec: Option<IOSpec>,
-                  quality_spec: Option<QualitySpec>,
-                  runtime_spec: Option<RuntimeSpec>)
-                  -> Result<Soxr> {
-
+    pub fn create(
+        input_rate: f64,
+        output_rate: f64,
+        num_channels: u32,
+        io_spec: Option<IOSpec>,
+        quality_spec: Option<QualitySpec>,
+        runtime_spec: Option<RuntimeSpec>,
+    ) -> Result<Soxr> {
         let error: *mut c_char = ::std::ptr::null_mut();
 
         let q = quality_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
@@ -40,10 +40,10 @@ impl Soxr {
                 error: CString::new("").unwrap(),
             })
         } else {
-            Err(Error::new(Some("Soxr::new".into()),
-                           ErrorType::CreateError(from_const("Soxr::new", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::new".into()),
+                ErrorType::CreateError(from_const("Soxr::new", error).unwrap().to_string()),
+            ))
         }
     }
 
@@ -60,10 +60,10 @@ impl Soxr {
         if result.is_null() {
             Ok(())
         } else {
-            Err(Error::new(Some("Soxr::new".into()),
-                           ErrorType::ChangeError(from_const("Soxr::set_error", result)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::new".into()),
+                ErrorType::ChangeError(from_const("Soxr::set_error", result).unwrap().to_string()),
+            ))
         }
     }
 
@@ -73,10 +73,14 @@ impl Soxr {
         if error.is_null() {
             Ok(())
         } else {
-            Err(Error::new(Some("Soxr::set_num_channels".into()),
-                           ErrorType::ChangeError(from_const("Soxr::set_num_channels", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::set_num_channels".into()),
+                ErrorType::ChangeError(
+                    from_const("Soxr::set_num_channels", error)
+                        .unwrap()
+                        .to_string(),
+                ),
+            ))
         }
     }
 
@@ -103,7 +107,9 @@ impl Soxr {
 
     /// Query resampling engine name.
     pub fn engine(&self) -> String {
-        from_const("Soxr::engine", unsafe { api::soxr_engine(self.soxr) }).unwrap().to_string()
+        from_const("Soxr::engine", unsafe { api::soxr_engine(self.soxr) })
+            .unwrap()
+            .to_string()
     }
 
     /// Ready for fresh signal, same config.
@@ -112,10 +118,10 @@ impl Soxr {
         if error.is_null() {
             Ok(())
         } else {
-            Err(Error::new(Some("Soxr::clear".into()),
-                           ErrorType::ChangeError(from_const("Soxr::clear", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::clear".into()),
+                ErrorType::ChangeError(from_const("Soxr::clear", error).unwrap().to_string()),
+            ))
         }
     }
 
@@ -126,10 +132,12 @@ impl Soxr {
         if error.is_null() {
             Ok(())
         } else {
-            Err(Error::new(Some("Soxr::set_io_ratio".into()),
-                           ErrorType::ChangeError(from_const("Soxr::set_io_ratio", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::set_io_ratio".into()),
+                ErrorType::ChangeError(
+                    from_const("Soxr::set_io_ratio", error).unwrap().to_string(),
+                ),
+            ))
         }
     }
 
@@ -143,31 +151,35 @@ impl Soxr {
         let mut odone = 0;
         let error = match buf_in {
             Some(buf) => unsafe {
-                api::soxr_process(self.soxr,
-                                  buf.as_ptr() as *const c_void,
-                                  buf.len(),
-                                  &mut idone,
-                                  buf_out.as_mut_ptr() as *mut c_void,
-                                  buf_out.len(),
-                                  &mut odone)
+                api::soxr_process(
+                    self.soxr,
+                    buf.as_ptr() as *const c_void,
+                    buf.len(),
+                    &mut idone,
+                    buf_out.as_mut_ptr() as *mut c_void,
+                    buf_out.len(),
+                    &mut odone,
+                )
             },
             None => unsafe {
-                api::soxr_process(self.soxr,
-                                  ptr::null() as *const c_void,
-                                  0,
-                                  &mut idone,
-                                  buf_out.as_mut_ptr() as *mut c_void,
-                                  buf_out.len(),
-                                  &mut odone)
+                api::soxr_process(
+                    self.soxr,
+                    ptr::null() as *const c_void,
+                    0,
+                    &mut idone,
+                    buf_out.as_mut_ptr() as *mut c_void,
+                    buf_out.len(),
+                    &mut odone,
+                )
             },
         };
         if error.is_null() {
             Ok((idone, odone))
         } else {
-            Err(Error::new(Some("Soxr::process".into()),
-                           ErrorType::ProcessError(from_const("Soxr::process", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::process".into()),
+                ErrorType::ProcessError(from_const("Soxr::process", error).unwrap().to_string()),
+            ))
         }
     }
 
@@ -238,26 +250,27 @@ impl Soxr {
     ///     }
     /// }
     /// ```
-    pub fn set_input(&mut self,
-                     input: api::soxr_input_fn_t,
-                     input_state: Option<api::soxr_fn_state_t>,
-                     max_ilen: usize)
-                     -> Result<()> {
+    pub fn set_input(
+        &mut self,
+        input: api::soxr_input_fn_t,
+        input_state: Option<api::soxr_fn_state_t>,
+        max_ilen: usize,
+    ) -> Result<()> {
         let error = unsafe {
-            api::soxr_set_input_fn(self.soxr,
-                                   input,
-                                   input_state.unwrap_or_else(|| {
-                                       ptr::null()
-                                   }) as api::soxr_fn_state_t,
-                                   max_ilen)
+            api::soxr_set_input_fn(
+                self.soxr,
+                input,
+                input_state.unwrap_or_else(|| ptr::null()) as api::soxr_fn_state_t,
+                max_ilen,
+            )
         };
         if error.is_null() {
             Ok(())
         } else {
-            Err(Error::new(Some("Soxr::set_input".into()),
-                           ErrorType::ProcessError(from_const("Soxr::set_input", error)
-                               .unwrap()
-                               .to_string())))
+            Err(Error::new(
+                Some("Soxr::set_input".into()),
+                ErrorType::ProcessError(from_const("Soxr::set_input", error).unwrap().to_string()),
+            ))
         }
     }
 
@@ -301,16 +314,21 @@ mod soxr_tests {
     #[test]
     fn test_create() {
         use datatype::Datatype;
-        use spec::{QualityRecipe, QualityFlags};
+        use spec::{QualityFlags, QualityRecipe};
 
         let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
         assert!(s.is_ok());
-        s = Soxr::create(96000.0,
-                         44100.0,
-                         2,
-                         Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
-                         Some(QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL)),
-                         Some(RuntimeSpec::new(4)));
+        s = Soxr::create(
+            96000.0,
+            44100.0,
+            2,
+            Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
+            Some(QualitySpec::new(
+                &QualityRecipe::High,
+                QualityFlags::ROLLOFF_SMALL,
+            )),
+            Some(RuntimeSpec::new(4)),
+        );
         assert!(s.is_ok());
     }
 
@@ -346,10 +364,11 @@ mod soxr_tests {
     fn test_process() {
         // Example taken from 1-single-block.c of libsoxr
         let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
-        let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
-                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
-                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
-                                 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
+        let source: [f32; 48] = [
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+        ];
         let mut target: [f32; 96] = [0.0; 96];
         let result = s.process(Some(&source), &mut target).and_then(|_| {
             s.process::<f32, f32>(None, &mut target[0..]).and_then(|_| {
@@ -362,11 +381,12 @@ mod soxr_tests {
         assert!(result.is_ok());
     }
 
-    use api::{soxr_in_t, soxr_fn_state_t};
-    extern "C" fn test_input_fn(state: soxr_fn_state_t,
-                                buf: *mut soxr_in_t,
-                                req_len: usize)
-                                -> usize {
+    use api::{soxr_fn_state_t, soxr_in_t};
+    extern "C" fn test_input_fn(
+        state: soxr_fn_state_t,
+        buf: *mut soxr_in_t,
+        req_len: usize,
+    ) -> usize {
         unsafe {
             // Cast to raw point to a TestState. Beware not to use Box::from_raw as it will
             // try to destroy the struct that is managed elsewere
@@ -376,11 +396,13 @@ mod soxr_tests {
             // to our TestState
             assert_eq!("libsoxr", (*s).check);
 
-            print!("setting {}/{} values for {} with {}\t",
-                   req_len,
-                   (**s).source_buffer.len(),
-                   (**s).check,
-                   (**s).command);
+            print!(
+                "setting {}/{} values for {} with {}\t",
+                req_len,
+                (**s).source_buffer.len(),
+                (**s).check,
+                (**s).command
+            );
 
             // just for this test, so we can check the output
             let value_to_use = (*s).value;

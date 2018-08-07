@@ -59,13 +59,13 @@ extern crate libc;
 extern crate bitflags;
 
 pub mod api;
+pub mod datatype;
 pub mod soxr;
 pub mod spec;
-pub mod datatype;
 
 mod error_handling;
 mod wrapper_helpers;
 
-pub use soxr::Soxr;
 pub use datatype::Datatype;
+pub use soxr::Soxr;
 pub use spec::{IOSpec, QualitySpec, RuntimeSpec};

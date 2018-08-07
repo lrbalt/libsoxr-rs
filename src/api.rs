@@ -15,7 +15,7 @@
 
 #![allow(non_camel_case_types)]
 
-use libc::{c_double, c_uint, c_char, c_void, c_ulong, size_t};
+use libc::{c_char, c_double, c_uint, c_ulong, c_void, size_t};
 // {c_int, c_uint, c_long, c_longlong, size_t, ssize_t, c_void, c_char,
 // c_uchar, c_ulong, c_double, FILE, c_ushort, c_short, pid_t, timeval, timespec, pollfd};
 
@@ -164,7 +164,6 @@ pub const SOXR_INTERMEDIATE_PHASE: u8 = 0x10;
 pub const SOXR_MINIMUM_PHASE: u8 = 0x30;
 pub const SOXR_STEEP_FILTER: u8 = 0x40;
 
-
 extern "C" {
     /// Create a stream resampler
     ///
@@ -182,14 +181,15 @@ extern "C" {
     /// Default `io_spec`      is per `soxr_io_spec(SOXR_FLOAT32_I, SOXR_FLOAT32_I)`.
     /// Default `quality_spec` is per `soxr_quality_spec(SOXR_HQ, 0)`.
     /// Default `runtime_spec` is per `soxr_runtime_spec(1)`.
-    pub fn soxr_create(input_rate: c_double,
-                       output_rate: c_double,
-                       num_channels: c_uint,
-                       error: soxr_error_t,
-                       io_spec: *const soxr_io_spec_t,
-                       quality_spec: *const soxr_quality_spec_t,
-                       runtime_spec: *const soxr_runtime_spec_t)
-                       -> soxr_t;
+    pub fn soxr_create(
+        input_rate: c_double,
+        output_rate: c_double,
+        num_channels: c_uint,
+        error: soxr_error_t,
+        io_spec: *const soxr_io_spec_t,
+        quality_spec: *const soxr_quality_spec_t,
+        runtime_spec: *const soxr_runtime_spec_t,
+    ) -> soxr_t;
 
     /// If not using an app-supplied input function, after creating a stream resampler, repeatedly
     /// call `soxr_process`
@@ -207,14 +207,15 @@ extern "C" {
     /// Note that no special meaning is associated with ilen or olen equal to zero.
     /// End-of-input (i.e. no data is available nor shall be available) may be indicated by
     /// setting `in' to NULL.
-    pub fn soxr_process(resampler: soxr_t,
-                        buf_in: soxr_in_t,
-                        ilen: size_t,
-                        idone: *mut size_t,
-                        buf_out: soxr_out_t,
-                        olen: size_t,
-                        odone: *mut size_t)
-                        -> soxr_error_t;
+    pub fn soxr_process(
+        resampler: soxr_t,
+        buf_in: soxr_in_t,
+        ilen: size_t,
+        idone: *mut size_t,
+        buf_out: soxr_out_t,
+        olen: size_t,
+        odone: *mut size_t,
+    ) -> soxr_error_t;
 
     /// Set (or reset) an input function.
     ///
@@ -222,11 +223,12 @@ extern "C" {
     /// * func - Function to supply data to be resampled.
     /// * input_fn_state - If needed by the input function.
     /// * max_ilen - Maximum value for input fn. requested_len.
-    pub fn soxr_set_input_fn(resampler: soxr_t,
-                             func: soxr_input_fn_t,
-                             input_fn_state: soxr_fn_state_t,
-                             max_ilen: usize)
-                             -> soxr_error_t;
+    pub fn soxr_set_input_fn(
+        resampler: soxr_t,
+        func: soxr_input_fn_t,
+        input_fn_state: soxr_fn_state_t,
+        max_ilen: usize,
+    ) -> soxr_error_t;
 
     /// Resample and output a block of data. If using an app-supplied input function, it must
     /// look and behave like `soxr_input_fn_t` and be registered with a previously created stream

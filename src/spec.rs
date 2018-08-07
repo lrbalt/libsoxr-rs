@@ -1,8 +1,8 @@
 //! For specifying the runtime settings of the resampler
 //! For specifying the data type of input and output
 use api;
-use libc;
 use datatype::Datatype;
+use libc;
 
 /// Wrapper for `soxr_runtime_spec_t`
 pub struct RuntimeSpec {
@@ -12,7 +12,9 @@ pub struct RuntimeSpec {
 impl RuntimeSpec {
     /// creates a new `RuntimeSpec` for `num_threads` threads
     pub fn new(num_threads: u32) -> RuntimeSpec {
-        RuntimeSpec { runtime_spec: unsafe { api::soxr_runtime_spec(num_threads) } }
+        RuntimeSpec {
+            runtime_spec: unsafe { api::soxr_runtime_spec(num_threads) },
+        }
     }
     /// returns inner soxr struct
     pub fn soxr_spec(&self) -> &api::soxr_runtime_spec_t {
@@ -33,7 +35,9 @@ impl IOSpec {
     pub fn new(input_type: Datatype, output_type: Datatype) -> IOSpec {
         let itype = input_type.to_soxr_datatype();
         let otype = output_type.to_soxr_datatype();
-        IOSpec { io_spec: unsafe { api::soxr_io_spec(itype, otype) } }
+        IOSpec {
+            io_spec: unsafe { api::soxr_io_spec(itype, otype) },
+        }
     }
 
     /// returns inner soxr struct
@@ -82,8 +86,10 @@ impl QualitySpec {
     pub fn new(quality: &QualityRecipe, flags: QualityFlags) -> QualitySpec {
         QualitySpec {
             quality_spec: unsafe {
-                api::soxr_quality_spec(libc::c_ulong::from(quality.to_recipe()),
-                                       flags.bits as libc::c_ulong)
+                api::soxr_quality_spec(
+                    libc::c_ulong::from(quality.to_recipe()),
+                    flags.bits as libc::c_ulong,
+                )
             },
         }
     }
@@ -97,10 +103,14 @@ impl QualitySpec {
 #[test]
 fn test_create_io_spec() {
     let spec = IOSpec::new(Datatype::Float32I, Datatype::Int32I);
-    assert_eq!(Datatype::Float32I.to_soxr_datatype() as isize,
-               spec.io_spec.itype as isize);
-    assert_eq!(Datatype::Int32I.to_soxr_datatype() as isize,
-               spec.io_spec.otype as isize);
+    assert_eq!(
+        Datatype::Float32I.to_soxr_datatype() as isize,
+        spec.io_spec.itype as isize
+    );
+    assert_eq!(
+        Datatype::Int32I.to_soxr_datatype() as isize,
+        spec.io_spec.otype as isize
+    );
 }
 
 #[test]
@@ -111,7 +121,10 @@ fn test_create_runtime_spec() {
 
 #[test]
 fn test_create_quality_spec() {
-    let spec = QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM);
+    let spec = QualitySpec::new(
+        &QualityRecipe::High,
+        QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM,
+    );
     let result = QualityFlags::from_bits_truncate(spec.soxr_spec().flags);
     assert!(result.contains(QualityFlags::ROLLOFF_SMALL | QualityFlags::ROLLOFF_MEDIUM));
 }

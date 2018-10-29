@@ -308,7 +308,7 @@ mod soxr_tests {
     fn test_version() {
         let version = Soxr::version();
         println!("{}", version);
-        assert_eq!("libsoxr-0.1.2", version);
+        assert_eq!("libsoxr-0.1.3", version);
     }
 
     #[test]

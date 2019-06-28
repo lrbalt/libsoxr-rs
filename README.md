@@ -16,7 +16,7 @@ git = "https://github.com/lrbalt/libsoxr-rs"
 and add the crate:
 
 ```rust
-extern create libsoxr;
+extern crate libsoxr;
 use libsoxr::Soxr;
 ```
 

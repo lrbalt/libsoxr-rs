@@ -22,7 +22,8 @@ pub fn _from_alloc(func: &'static str, s: *const c_char) -> Result<String> {
             free(s as *mut c_void);
         }
         Error::invalid_str(func)
-    })).to_string();
+    }))
+    .to_string();
     unsafe {
         free(s as *mut c_void);
     }

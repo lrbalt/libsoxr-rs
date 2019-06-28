@@ -344,7 +344,7 @@ mod soxr_tests {
     #[test]
     fn test_engine() {
         let s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-        assert_eq!("single-precision-SIMD", s.engine());
+        assert_eq!("cr32s", s.engine());
     }
 
     #[test]

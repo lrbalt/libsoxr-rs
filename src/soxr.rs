@@ -260,7 +260,7 @@ impl Soxr {
             api::soxr_set_input_fn(
                 self.soxr,
                 input,
-                input_state.unwrap_or_else(|| ptr::null()) as api::soxr_fn_state_t,
+                input_state.unwrap_or(ptr::null()) as api::soxr_fn_state_t,
                 max_ilen,
             )
         };

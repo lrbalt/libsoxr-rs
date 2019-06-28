@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["api","This is a thin wrapper around the libsoxr C API."],["datatype","Encapsulated data types for samples"],["soxr","Rust API for SOXR."],["spec","For specifying the runtime settings of the resampler For specifying the data type of input and output"]]});

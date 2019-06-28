@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Datatype","Wrapper for `soxr_datatype_t`"]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["QualityRecipe",""]],"struct":[["IOSpec","Wrapper for `soxr_io_spec_t`"],["QualityFlags",""],["QualitySpec","Wrapper for `soxr_quality_spec_t`"],["RuntimeSpec","Wrapper for `soxr_runtime_spec_t`"]]});

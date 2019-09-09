@@ -57,6 +57,9 @@
 extern crate libc;
 #[macro_use]
 extern crate bitflags;
+#[cfg(test)]
+#[macro_use]
+extern crate approx;
 
 pub mod api;
 pub mod datatype;

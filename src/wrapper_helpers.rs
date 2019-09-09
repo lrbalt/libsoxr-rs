@@ -17,13 +17,14 @@ pub fn _from_alloc(func: &'static str, s: *const c_char) -> Result<String> {
         return Err(Error::invalid_str(func));
     };
     let cstr = unsafe { CStr::from_ptr(s) };
-    let rust_string = try!(::std::str::from_utf8(cstr.to_bytes()).map_err(|_| {
-        unsafe {
-            free(s as *mut c_void);
-        }
-        Error::invalid_str(func)
-    }))
-    .to_string();
+    let rust_string = std::str::from_utf8(cstr.to_bytes())
+        .map_err(|_| {
+            unsafe {
+                free(s as *mut c_void);
+            }
+            Error::invalid_str(func)
+        })?
+        .to_string();
     unsafe {
         free(s as *mut c_void);
     }

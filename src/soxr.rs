@@ -424,10 +424,10 @@ mod soxr_tests {
             // for testing: set command to non-zero to force end-of-input (eoi)
             if (*s).command == 0 {
                 println!("returning {:?}", req_len);
-                return req_len;
+                req_len
             } else {
                 println!("eoi");
-                return 0;
+                0
             }
         }
     }
@@ -461,7 +461,7 @@ mod soxr_tests {
         let mut data = [1.1f32; 200];
         println!("first call");
         assert_eq!(200, s.output(&mut data[0..], 200));
-        assert!(data[0] != 1.1);
+        assert_abs_diff_ne!(data[0], 1.1);
 
         // tell test_input_fn to return end-of-input (0)
         state.command = 1;
@@ -471,7 +471,7 @@ mod soxr_tests {
         // flush all data from libsoxr until end-of-input
         while s.output(&mut buffer[0..], 200) > 0 {
             print!(".{}", buffer[0]);
-            assert!(buffer[0] != 1.1);
+            assert_abs_diff_ne!(buffer[0], 1.1);
         }
         println!();
     }

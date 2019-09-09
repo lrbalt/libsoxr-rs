@@ -1,6 +1,6 @@
 //! Convenience helper functions to handle conversion between C-types and Rust-types
 
-use error_handling::{Error, Result};
+use crate::error_handling::{Error, Result};
 use libc::{c_char, c_void, free};
 use std::ffi::CStr;
 

@@ -69,6 +69,8 @@ pub mod spec;
 mod error_handling;
 mod wrapper_helpers;
 
-pub use datatype::Datatype;
-pub use soxr::Soxr;
-pub use spec::{IOSpec, QualitySpec, RuntimeSpec};
+pub use crate::{
+    datatype::Datatype,
+    soxr::Soxr,
+    spec::{IOSpec, QualitySpec, RuntimeSpec},
+};

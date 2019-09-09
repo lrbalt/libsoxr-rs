@@ -1,12 +1,14 @@
 //! Rust API for SOXR.
 
-use api;
-use error_handling::{Error, ErrorType, Result};
+use crate::{
+    api,
+    error_handling::{Error, ErrorType, Result},
+    spec::{IOSpec, QualitySpec, RuntimeSpec},
+    wrapper_helpers::from_const,
+};
 use libc::{c_char, c_void};
-use spec::{IOSpec, QualitySpec, RuntimeSpec};
 use std::ffi::CString;
 use std::ptr;
-use wrapper_helpers::from_const;
 
 /// Wrapper for `soxr_t`
 #[derive(Debug)]
@@ -302,7 +304,7 @@ impl Drop for Soxr {
 #[cfg(test)]
 mod soxr_tests {
     use super::Soxr;
-    use spec::{IOSpec, QualitySpec, RuntimeSpec};
+    use crate::spec::{IOSpec, QualitySpec, RuntimeSpec};
 
     #[test]
     fn test_version() {
@@ -313,8 +315,8 @@ mod soxr_tests {
 
     #[test]
     fn test_create() {
-        use datatype::Datatype;
-        use spec::{QualityFlags, QualityRecipe};
+        use crate::datatype::Datatype;
+        use crate::spec::{QualityFlags, QualityRecipe};
 
         let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
         assert!(s.is_ok());
@@ -381,7 +383,7 @@ mod soxr_tests {
         assert!(result.is_ok());
     }
 
-    use api::{soxr_fn_state_t, soxr_in_t};
+    use crate::api::{soxr_fn_state_t, soxr_in_t};
     extern "C" fn test_input_fn(
         state: soxr_fn_state_t,
         buf: *mut soxr_in_t,

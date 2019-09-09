@@ -8,6 +8,7 @@ documentation = "https://lrbalt.github.io/libsoxr-rs/libsoxr/"
 keywords = ["audio", "sound", "resampling", "sox", "soxr"]
 license = "LGPL-2.0"
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
 libc = "0.2"

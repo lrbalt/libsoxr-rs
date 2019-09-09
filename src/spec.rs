@@ -1,7 +1,6 @@
 //! For specifying the runtime settings of the resampler
 //! For specifying the data type of input and output
-use api;
-use datatype::Datatype;
+use crate::{api, datatype::Datatype};
 use libc;
 
 /// Wrapper for `soxr_runtime_spec_t`

@@ -1,5 +1,5 @@
 //! Encapsulated data types for samples
-use api;
+use crate::api;
 
 /// Wrapper for `soxr_datatype_t`
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

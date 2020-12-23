@@ -1,7 +1,6 @@
 //! For specifying the runtime settings of the resampler
 //! For specifying the data type of input and output
 use crate::{api, datatype::Datatype};
-use libc;
 
 /// Wrapper for `soxr_runtime_spec_t`
 pub struct RuntimeSpec {
@@ -29,6 +28,7 @@ pub struct IOSpec {
 impl IOSpec {
     /// creates a new `IOSpec` using `soxr_io_spec`
     /// ```
+    /// use libsoxr::{Datatype, IOSpec};
     /// let spec = IOSpec::new(Datatype::Float32I, Datatype::Float32I);
     /// ```
     pub fn new(input_type: Datatype, output_type: Datatype) -> IOSpec {
@@ -66,7 +66,7 @@ pub enum QualityRecipe {
 impl QualityRecipe {
     /// convert to SOXR constant
     pub fn to_recipe(&self) -> u8 {
-        match *self {
+        match self {
             QualityRecipe::Quick => api::SOXR_QQ,
             QualityRecipe::Low => api::SOXR_LQ,
             QualityRecipe::Medium => api::SOXR_MQ,
@@ -77,6 +77,7 @@ impl QualityRecipe {
 }
 
 /// Wrapper for `soxr_quality_spec_t`
+#[derive(Debug)]
 pub struct QualitySpec {
     quality_spec: api::soxr_quality_spec_t,
 }

@@ -91,6 +91,7 @@ pub const SOXR_TPDF: u8 = 0;
 pub const SOXR_NO_DITHER: u8 = 8;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct soxr_quality_spec {
     /// Conversion precision (in bits). Typically 20
     pub precision: c_double,

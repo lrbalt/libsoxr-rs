@@ -23,9 +23,9 @@ impl Soxr {
         input_rate: f64,
         output_rate: f64,
         num_channels: u32,
-        io_spec: Option<IOSpec>,
-        quality_spec: Option<QualitySpec>,
-        runtime_spec: Option<RuntimeSpec>,
+        io_spec: Option<&IOSpec>,
+        quality_spec: Option<&QualitySpec>,
+        runtime_spec: Option<&RuntimeSpec>,
     ) -> Result<Soxr> {
         let error: *mut c_char = ::std::ptr::null_mut();
 
@@ -304,7 +304,7 @@ impl Drop for Soxr {
 #[cfg(test)]
 mod soxr_tests {
     use super::Soxr;
-    use crate::spec::{IOSpec, QualitySpec, RuntimeSpec};
+    use crate::spec::{IOSpec, QualityFlags, QualityRecipe, QualitySpec, RuntimeSpec};
 
     #[test]
     fn test_version() {
@@ -320,16 +320,18 @@ mod soxr_tests {
 
         let mut s = Soxr::create(96000.0, 44100.0, 2, None, None, None);
         assert!(s.is_ok());
+
+        let quality_spec = QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL);
+        let runtime_spec = RuntimeSpec::new(4);
+        let io_spec = IOSpec::new(Datatype::Float32I, Datatype::Int32I);
+
         s = Soxr::create(
             96000.0,
             44100.0,
             2,
-            Some(IOSpec::new(Datatype::Float32I, Datatype::Int32I)),
-            Some(QualitySpec::new(
-                &QualityRecipe::High,
-                QualityFlags::ROLLOFF_SMALL,
-            )),
-            Some(RuntimeSpec::new(4)),
+            Some(&io_spec),
+            Some(&quality_spec),
+            Some(&runtime_spec),
         );
         assert!(s.is_ok());
     }
@@ -446,6 +448,43 @@ mod soxr_tests {
     #[test]
     fn test_data_fn() {
         let mut s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+
+        // create state for input_fn
+        let mut state = TestState {
+            check: "libsoxr",
+            command: 0,
+            value: 2.3,
+            source_buffer: [1.2; 100],
+        };
+
+        // convert to raw pointer to pass into libsoxr using set_input
+        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
+        assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
+
+        // create buffer for resampled data
+        let mut data = [1.1f32; 200];
+        println!("first call");
+        assert_eq!(200, s.output(&mut data[0..], 200));
+        assert_abs_diff_ne!(data[0], 1.1);
+
+        // tell test_input_fn to return end-of-input (0)
+        state.command = 1;
+        // other buffer for resampled data
+        let mut buffer = [1.1f32; 200];
+        println!("second");
+        // flush all data from libsoxr until end-of-input
+        while s.output(&mut buffer[0..], 200) > 0 {
+            print!(".{}", buffer[0]);
+            assert_abs_diff_ne!(buffer[0], 1.1);
+        }
+        println!();
+    }
+
+    #[test]
+    fn test_custom_spec() {
+        // test for issue #2
+        let spec = QualitySpec::new(&QualityRecipe::VeryHigh, QualityFlags::HI_PREC_CLOCK);
+        let mut s = Soxr::create(1.0, 2.0, 1, None, Some(&spec), None).unwrap();
 
         // create state for input_fn
         let mut state = TestState {

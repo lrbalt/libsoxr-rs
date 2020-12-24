@@ -1,7 +1,6 @@
 //! Rust API for SOXR.
 
 use crate::{
-    api,
     error_handling::{Error, ErrorType, Result},
     spec::{IOSpec, QualitySpec, RuntimeSpec},
     wrapper_helpers::from_const,
@@ -9,6 +8,7 @@ use crate::{
 use libc::{c_char, c_void};
 use std::ffi::CString;
 use std::ptr;
+use libsoxr_sys as api;
 
 /// Wrapper for `soxr_t`
 #[derive(Debug)]
@@ -27,7 +27,7 @@ impl Soxr {
         quality_spec: Option<&QualitySpec>,
         runtime_spec: Option<&RuntimeSpec>,
     ) -> Result<Soxr> {
-        let error: *mut c_char = ::std::ptr::null_mut();
+        let error: *mut *const c_char = ::std::ptr::null_mut();
 
         let q = quality_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
         let io = io_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
@@ -42,6 +42,7 @@ impl Soxr {
                 error: CString::new("").unwrap(),
             })
         } else {
+            let error = unsafe {*error};
             Err(Error::new(
                 Some("Soxr::new".into()),
                 ErrorType::CreateError(from_const("Soxr::new", error).unwrap().to_string()),
@@ -262,7 +263,7 @@ impl Soxr {
             api::soxr_set_input_fn(
                 self.soxr,
                 input,
-                input_state.unwrap_or(ptr::null()) as api::soxr_fn_state_t,
+                input_state.unwrap_or(ptr::null()) as *mut ::std::os::raw::c_void,
                 max_ilen,
             )
         };
@@ -305,6 +306,7 @@ impl Drop for Soxr {
 mod soxr_tests {
     use super::Soxr;
     use crate::spec::{IOSpec, QualityFlags, QualityRecipe, QualitySpec, RuntimeSpec};
+    use libsoxr_sys as api;
 
     #[test]
     fn test_version() {
@@ -385,10 +387,9 @@ mod soxr_tests {
         assert!(result.is_ok());
     }
 
-    use crate::api::{soxr_fn_state_t, soxr_in_t};
     extern "C" fn test_input_fn(
-        state: soxr_fn_state_t,
-        buf: *mut soxr_in_t,
+        state: api::soxr_fn_state_t_mut,
+        buf: *mut api::soxr_in_t,
         req_len: usize,
     ) -> usize {
         unsafe {
@@ -422,7 +423,7 @@ mod soxr_tests {
                 // data is a pointer to the buffer, so data.as_ptr() is the same, but the raw
                 // pointer. Put it in *buf to tell libsoxr where to find the buffer
                 let data: &[f32] = &(*s).source_buffer[..];
-                *buf = data.as_ptr() as soxr_in_t;
+                *buf = data.as_ptr() as api::soxr_in_t;
             }
 
             // for testing: set command to non-zero to force end-of-input (eoi)
@@ -458,8 +459,8 @@ mod soxr_tests {
         };
 
         // convert to raw pointer to pass into libsoxr using set_input
-        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
-        assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
+        let state_data = Some(Box::into_raw(Box::new(&state)) as api::soxr_fn_state_t);
+        assert!(s.set_input(Some(test_input_fn), state_data, 100).is_ok());
 
         // create buffer for resampled data
         let mut data = [1.1f32; 200];
@@ -495,8 +496,8 @@ mod soxr_tests {
         };
 
         // convert to raw pointer to pass into libsoxr using set_input
-        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr_fn_state_t);
-        assert!(s.set_input(test_input_fn, state_data, 100).is_ok());
+        let state_data = Some(Box::into_raw(Box::new(&state)) as api::soxr_fn_state_t);
+        assert!(s.set_input(Some(test_input_fn), state_data, 100).is_ok());
 
         // create buffer for resampled data
         let mut data = [1.1f32; 200];

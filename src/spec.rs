@@ -1,6 +1,7 @@
 //! For specifying the runtime settings of the resampler
 //! For specifying the data type of input and output
-use crate::{api, datatype::Datatype};
+use crate::datatype::Datatype;
+use libsoxr_sys as api;
 
 /// Wrapper for `soxr_runtime_spec_t`
 pub struct RuntimeSpec {
@@ -47,7 +48,7 @@ impl IOSpec {
 
 bitflags! {
     pub struct QualityFlags: libc::c_ulong {
-        const ROLLOFF_SMALL = api::SOXR_ROLLOFF_SMALL as libc::c_ulong;
+        const ROLLOFF_SMALL = api::SOXR_ROLLOFF_SMALL as libc::c_ulong; 
         const ROLLOFF_MEDIUM = api::SOXR_ROLLOFF_MEDIUM as libc::c_ulong;
         const ROLLOFF_NONE = api::SOXR_ROLLOFF_NONE as libc::c_ulong;
         const HI_PREC_CLOCK = api::SOXR_HI_PREC_CLOCK as libc::c_ulong;
@@ -65,7 +66,7 @@ pub enum QualityRecipe {
 
 impl QualityRecipe {
     /// convert to SOXR constant
-    pub fn to_recipe(&self) -> u8 {
+    pub fn to_recipe(&self) -> u32 {
         match self {
             QualityRecipe::Quick => api::SOXR_QQ,
             QualityRecipe::Low => api::SOXR_LQ,

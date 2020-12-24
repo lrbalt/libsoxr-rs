@@ -1,6 +1,6 @@
 [package]
 name = "libsoxr"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Reinier Balt <lrbalt@gmail.com>"]
 description = "Wrapper for libsoxr (resampling library for sounds)"
 repository = "https://github.com/lrbalt/libsoxr-rs"

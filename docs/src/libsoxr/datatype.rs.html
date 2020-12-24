@@ -32,35 +32,37 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
+<span id="32">32</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Encapsulated data types for samples</span>
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">api</span>;
+<span class="kw">use</span> <span class="ident">libsoxr_sys</span> <span class="kw">as</span> <span class="ident">soxr</span>;
 
-<span class="doccomment">/// Wrapper for `soxr_datatype_t`</span>
+<span class="doccomment">/// Datatypes supported for I/O to/from the resampler. </span>
+<span class="doccomment">/// Use the I data types for Interleaved channels and use the S data types for split channels. Wrapper for `soxr_datatype_t`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Datatype</span> {
-    <span class="ident">Float32I</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT32_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Float64I</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT64_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Int32I</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT32_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Int16I</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT16_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Float32S</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT32_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Float64S</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT64_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Int32S</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT32_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
-    <span class="ident">Int16S</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT16_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Float32I</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT32_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Float64I</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT64_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Int32I</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT32_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Int16I</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT16_I</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Float32S</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT32_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Float64S</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT64_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Int32S</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT32_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
+    <span class="ident">Int16S</span> <span class="op">=</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT16_S</span> <span class="kw">as</span> <span class="ident">isize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Datatype</span> {
     <span class="doccomment">/// helper function to convert from `Datatype` to `soxr_datatype_t`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_soxr_datatype</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_soxr_datatype</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">soxr_datatype_t</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Datatype</span>::<span class="ident">Float32I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT32_I</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Float64I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT64_I</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Int32I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT32_I</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Int16I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT16_I</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Float32S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT32_S</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Float64S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_FLOAT64_S</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Int32S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT32_S</span>,
-            <span class="ident">Datatype</span>::<span class="ident">Int16S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">soxr_datatype_t</span>::<span class="ident">SOXR_INT16_S</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Float32I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT32_I</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Float64I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT64_I</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Int32I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT32_I</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Int16I</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT16_I</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Float32S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT32_S</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Float64S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_FLOAT64_S</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Int32S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT32_S</span>,
+            <span class="ident">Datatype</span>::<span class="ident">Int16S</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">soxr</span>::<span class="ident">SOXR_INT16_S</span>,
         }
     }
 }

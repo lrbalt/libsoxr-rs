@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Datatype","Wrapper for `soxr_datatype_t`"]]});
+initSidebarItems({"enum":[["Datatype","Datatypes supported for I/O to/from the resampler.  Use the I data types for Interleaved channels and use the S data types for split channels. Wrapper for `soxr_datatype_t`."]]});

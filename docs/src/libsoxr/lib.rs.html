@@ -71,23 +71,13 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # libsoxr-rs</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is</span>
 <span class="doccomment">//! a &quot;High quality, one-dimensional sample-rate conversion library&quot;.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Use the `soxr` namespace to use soxr in your Rust program. For direct access to the libsoxr</span>
-<span class="doccomment">//! functions, you can use the `api` namespace.</span>
-<span class="doccomment">//! # libsoxr-rs</span>
-<span class="doccomment">//! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is</span>
-<span class="doccomment">//! a &quot;High quality, one-dimensional sample-rate conversion library&quot;.</span>
+<span class="doccomment">//! For direct access to the libsoxr functions, you can use the [libsoxr-sys](https://github.com/lrbalt/libsoxr-sys) crate.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! This wrapper library is licensed the same as libsoxr itself: LGPLv2.</span>
 <span class="doccomment">//!</span>
@@ -134,14 +124,12 @@
 <span class="doccomment">//!     })</span>
 <span class="doccomment">//! });</span>
 <span class="doccomment">//! ```</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bitflags</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">approx</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">api</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">datatype</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">soxr</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">spec</span>;

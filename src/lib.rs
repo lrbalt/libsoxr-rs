@@ -52,9 +52,6 @@
 //! ```
 #[macro_use]
 extern crate bitflags;
-#[cfg(test)]
-#[macro_use]
-extern crate approx;
 
 pub mod datatype;
 pub mod soxr;

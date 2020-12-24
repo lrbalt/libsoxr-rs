@@ -5,20 +5,27 @@ use crate::{
     spec::{IOSpec, QualitySpec, RuntimeSpec},
     wrapper_helpers::from_const,
 };
-use libc::{c_char, c_void};
-use std::ffi::CString;
-use std::ptr;
-use libsoxr_sys as api;
+use libsoxr_sys as soxr;
+use std::{
+    ffi::CString,
+    os::raw::{c_char, c_void},
+    ptr,
+};
 
 /// Wrapper for `soxr_t`
 #[derive(Debug)]
 pub struct Soxr {
-    soxr: api::soxr_t,
+    soxr: soxr::soxr_t,
     error: CString,
 }
 
 impl Soxr {
     /// Create a new resampler
+    ///
+    /// When `io_spec`, `quality_spec` or `runtime_spec` is `None` then SOXR will use it defaults:
+    /// * Default io_spec      is per [IOSpec]([Datatype](crate::datatype::Datatype)::FLOAT32I, [Datatype](crate::datatype::Datatype)::FLOAT32I)
+    /// * Default quality_spec is per [QualitySpec]([QualityRecipe](crate::spec::QualityRecipe)::High, [QualityFlags](crate::spec::QualityFlags)::ROLLOFF_SMALL)
+    /// * Default runtime_spec is per [RuntimeSpec] (1)          
     pub fn create(
         input_rate: f64,
         output_rate: f64,
@@ -34,7 +41,7 @@ impl Soxr {
         let rt = runtime_spec.map_or(ptr::null(), |spec| spec.soxr_spec());
 
         let soxr =
-            unsafe { api::soxr_create(input_rate, output_rate, num_channels, error, io, q, rt) };
+            unsafe { soxr::soxr_create(input_rate, output_rate, num_channels, error, io, q, rt) };
 
         if error.is_null() {
             Ok(Soxr {
@@ -42,7 +49,7 @@ impl Soxr {
                 error: CString::new("").unwrap(),
             })
         } else {
-            let error = unsafe {*error};
+            let error = unsafe { *error };
             Err(Error::new(
                 Some("Soxr::new".into()),
                 ErrorType::CreateError(from_const("Soxr::new", error).unwrap().to_string()),
@@ -52,14 +59,14 @@ impl Soxr {
 
     /// Get version of libsoxr
     pub fn version() -> &'static str {
-        unsafe { from_const("Soxr::version", api::soxr_version()).unwrap() }
+        unsafe { from_const("Soxr::version", soxr::soxr_version()).unwrap() }
     }
 
     /// Set error of Soxr engine
     pub fn set_error(&mut self, msg: String) -> Result<()> {
         self.error = CString::new(msg).unwrap();
         let result =
-            unsafe { api::soxr_set_error(self.soxr, self.error.as_ptr() as api::soxr_error_t) };
+            unsafe { soxr::soxr_set_error(self.soxr, self.error.as_ptr() as soxr::soxr_error_t) };
         if result.is_null() {
             Ok(())
         } else {
@@ -72,7 +79,7 @@ impl Soxr {
 
     /// Change number of channels after creating Soxr object
     pub fn set_num_channels(&self, num_channels: u32) -> Result<()> {
-        let error = unsafe { api::soxr_set_num_channels(self.soxr, num_channels) };
+        let error = unsafe { soxr::soxr_set_num_channels(self.soxr, num_channels) };
         if error.is_null() {
             Ok(())
         } else {
@@ -89,8 +96,7 @@ impl Soxr {
 
     /// Query error status.
     pub fn error(&self) -> Option<String> {
-        let error = unsafe { api::soxr_error(self.soxr) };
-        println!("error: {:?}", error);
+        let error = unsafe { soxr::soxr_error(self.soxr) };
         if error.is_null() {
             None
         } else {
@@ -100,24 +106,24 @@ impl Soxr {
 
     /// Query int. clip counter (for R/W).
     pub fn num_clips(&self) -> usize {
-        unsafe { *api::soxr_num_clips(self.soxr) }
+        unsafe { *soxr::soxr_num_clips(self.soxr) }
     }
 
     /// Query current delay in output samples
     pub fn delay(&self) -> f64 {
-        unsafe { api::soxr_delay(self.soxr) }
+        unsafe { soxr::soxr_delay(self.soxr) }
     }
 
     /// Query resampling engine name.
     pub fn engine(&self) -> String {
-        from_const("Soxr::engine", unsafe { api::soxr_engine(self.soxr) })
+        from_const("Soxr::engine", unsafe { soxr::soxr_engine(self.soxr) })
             .unwrap()
             .to_string()
     }
 
     /// Ready for fresh signal, same config.
     pub fn clear(&mut self) -> Result<()> {
-        let error = unsafe { api::soxr_clear(self.soxr) };
+        let error = unsafe { soxr::soxr_clear(self.soxr) };
         if error.is_null() {
             Ok(())
         } else {
@@ -131,7 +137,7 @@ impl Soxr {
     /// For variable-rate resampling. See example # 5 of libsoxr repository for how to create a
     /// variable-rate resampler and how to use this function.
     pub fn set_io_ratio(&mut self, io_ratio: f64, slew_len: usize) -> Result<()> {
-        let error = unsafe { api::soxr_set_io_ratio(self.soxr, io_ratio, slew_len) };
+        let error = unsafe { soxr::soxr_set_io_ratio(self.soxr, io_ratio, slew_len) };
         if error.is_null() {
             Ok(())
         } else {
@@ -154,7 +160,7 @@ impl Soxr {
         let mut odone = 0;
         let error = match buf_in {
             Some(buf) => unsafe {
-                api::soxr_process(
+                soxr::soxr_process(
                     self.soxr,
                     buf.as_ptr() as *const c_void,
                     buf.len(),
@@ -165,7 +171,7 @@ impl Soxr {
                 )
             },
             None => unsafe {
-                api::soxr_process(
+                soxr::soxr_process(
                     self.soxr,
                     ptr::null() as *const c_void,
                     0,
@@ -255,12 +261,12 @@ impl Soxr {
     /// ```
     pub fn set_input(
         &mut self,
-        input: api::soxr_input_fn_t,
-        input_state: Option<api::soxr_fn_state_t>,
+        input: soxr::soxr_input_fn_t,
+        input_state: Option<soxr::soxr_fn_state_t>,
         max_ilen: usize,
     ) -> Result<()> {
         let error = unsafe {
-            api::soxr_set_input_fn(
+            soxr::soxr_set_input_fn(
                 self.soxr,
                 input,
                 input_state.unwrap_or(ptr::null()) as *mut ::std::os::raw::c_void,
@@ -292,13 +298,13 @@ impl Soxr {
     /// assert!(s.output(&mut buffer[..], buffer.len()) > 0);
     /// ```
     pub fn output<S>(&self, data: &mut [S], samples: usize) -> usize {
-        unsafe { api::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
+        unsafe { soxr::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
     }
 }
 
 impl Drop for Soxr {
     fn drop(&mut self) {
-        unsafe { api::soxr_delete(self.soxr) };
+        unsafe { soxr::soxr_delete(self.soxr) };
     }
 }
 
@@ -306,7 +312,7 @@ impl Drop for Soxr {
 mod soxr_tests {
     use super::Soxr;
     use crate::spec::{IOSpec, QualityFlags, QualityRecipe, QualitySpec, RuntimeSpec};
-    use libsoxr_sys as api;
+    use libsoxr_sys as soxr;
 
     #[test]
     fn test_version() {
@@ -388,8 +394,8 @@ mod soxr_tests {
     }
 
     extern "C" fn test_input_fn(
-        state: api::soxr_fn_state_t_mut,
-        buf: *mut api::soxr_in_t,
+        state: soxr::soxr_fn_state_t_mut,
+        buf: *mut soxr::soxr_in_t,
         req_len: usize,
     ) -> usize {
         unsafe {
@@ -423,7 +429,7 @@ mod soxr_tests {
                 // data is a pointer to the buffer, so data.as_ptr() is the same, but the raw
                 // pointer. Put it in *buf to tell libsoxr where to find the buffer
                 let data: &[f32] = &(*s).source_buffer[..];
-                *buf = data.as_ptr() as api::soxr_in_t;
+                *buf = data.as_ptr() as soxr::soxr_in_t;
             }
 
             // for testing: set command to non-zero to force end-of-input (eoi)
@@ -459,7 +465,7 @@ mod soxr_tests {
         };
 
         // convert to raw pointer to pass into libsoxr using set_input
-        let state_data = Some(Box::into_raw(Box::new(&state)) as api::soxr_fn_state_t);
+        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr::soxr_fn_state_t);
         assert!(s.set_input(Some(test_input_fn), state_data, 100).is_ok());
 
         // create buffer for resampled data
@@ -496,7 +502,7 @@ mod soxr_tests {
         };
 
         // convert to raw pointer to pass into libsoxr using set_input
-        let state_data = Some(Box::into_raw(Box::new(&state)) as api::soxr_fn_state_t);
+        let state_data = Some(Box::into_raw(Box::new(&state)) as soxr::soxr_fn_state_t);
         assert!(s.set_input(Some(test_input_fn), state_data, 100).is_ok());
 
         // create buffer for resampled data

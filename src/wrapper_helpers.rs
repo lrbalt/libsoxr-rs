@@ -1,8 +1,11 @@
 //! Convenience helper functions to handle conversion between C-types and Rust-types
 
 use crate::error_handling::{Error, Result};
-use libc::{c_char, c_void, free};
-use std::ffi::CStr;
+use libc::free;
+use std::{
+    ffi::CStr,
+    os::raw::{c_char, c_void},
+};
 
 pub fn from_const<'a>(func: &'static str, s: *const i8) -> Result<&'a str> {
     if s.is_null() {

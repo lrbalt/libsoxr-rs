@@ -3,11 +3,7 @@
 //! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is
 //! a "High quality, one-dimensional sample-rate conversion library".
 //!
-//! Use the `soxr` namespace to use soxr in your Rust program. For direct access to the libsoxr
-//! functions, you can use the `api` namespace.
-//! # libsoxr-rs
-//! This library is a thin wrapper for [libsoxr](https://sourceforge.net/projects/soxr/) which is
-//! a "High quality, one-dimensional sample-rate conversion library".
+//! For direct access to the libsoxr functions, you can use the [libsoxr-sys](https://github.com/lrbalt/libsoxr-sys) crate.
 //!
 //! This wrapper library is licensed the same as libsoxr itself: LGPLv2.
 //!

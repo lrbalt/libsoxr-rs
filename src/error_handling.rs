@@ -1,5 +1,4 @@
 //! Convenience functions for error handling
-
 use std::borrow::Cow;
 use std::fmt;
 
@@ -36,7 +35,7 @@ impl Error {
 
 impl ::std::error::Error for Error {
     fn description(&self) -> &str {
-        "ALSA error"
+        "SOXR error"
     }
 }
 

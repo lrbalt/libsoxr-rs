@@ -12,10 +12,13 @@ use std::{
     ptr,
 };
 
+pub type SoxrFunction<S, T> = fn(&mut S, &mut [T], usize) -> usize;
+
 /// Wrapper for `soxr_t`
 #[derive(Debug)]
 pub struct Soxr {
     soxr: soxr::soxr_t,
+    channels: u32,
     error: CString,
 }
 
@@ -46,6 +49,7 @@ impl Soxr {
         if error.is_null() {
             Ok(Soxr {
                 soxr,
+                channels: num_channels,
                 error: CString::new("").unwrap(),
             })
         } else {
@@ -78,9 +82,10 @@ impl Soxr {
     }
 
     /// Change number of channels after creating Soxr object
-    pub fn set_num_channels(&self, num_channels: u32) -> Result<()> {
+    pub fn set_num_channels(&mut self, num_channels: u32) -> Result<()> {
         let error = unsafe { soxr::soxr_set_num_channels(self.soxr, num_channels) };
         if error.is_null() {
+            self.channels = num_channels;
             Ok(())
         } else {
             Err(Error::new(
@@ -283,6 +288,39 @@ impl Soxr {
         }
     }
 
+    pub fn set_input_safe<'a, S, T>(
+        &mut self,
+        input_fn: SoxrFunction<S, T>,
+        state: Option<&'a mut S>,
+        max_ilen: usize,
+    ) -> Result<()> {
+        let state_data = state
+            .map(|s| TrampolineData {
+                check: "trampoline",
+                input_state: s,
+                input_fn,
+            })
+            .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t);
+
+        let error = unsafe {
+            soxr::soxr_set_input_fn(
+                self.soxr,
+                Some(input_trampoline::<S, T>),
+                state_data.unwrap_or(ptr::null()) as *mut ::std::os::raw::c_void,
+                max_ilen,
+            )
+        };
+
+        if error.is_null() {
+            Ok(())
+        } else {
+            Err(Error::new(
+                Some("Soxr::set_input".into()),
+                ErrorType::ProcessError(from_const("Soxr::set_input", error).unwrap().to_string()),
+            ))
+        }
+    }
+
     /// Resample and output a block of data using an app-supplied input function.
     /// This function must look and behave like `soxr_input_fn_t` and be registered with a
     /// previously created stream resampler using `set_input` then repeatedly call `output`.
@@ -298,8 +336,37 @@ impl Soxr {
     /// assert!(s.output(&mut buffer[..], buffer.len()) > 0);
     /// ```
     pub fn output<S>(&self, data: &mut [S], samples: usize) -> usize {
+        assert!(
+            data.len() >= samples * self.channels as usize,
+            "the data buffer does not contain enough space to hold requested samples"
+        );
         unsafe { soxr::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
     }
+}
+
+extern "C" fn input_trampoline<S, T>(
+    input_fn_state: *mut ::std::os::raw::c_void,
+    data: *mut soxr::soxr_in_t,
+    requested_len: usize,
+) -> usize {
+    println!("input_trampoline: {}", requested_len);
+    let trampoline_data = input_fn_state as *mut TrampolineData<S, T>;
+    unsafe {
+        assert_eq!((*trampoline_data).check, "trampoline");
+        let input_fn = (*trampoline_data).input_fn;
+        let data: &mut [T] = std::slice::from_raw_parts_mut((*data) as *mut T, requested_len);
+        input_fn(
+            (*trampoline_data).input_state,
+            data as &mut [T],
+            requested_len,
+        )
+    }
+}
+
+struct TrampolineData<'a, S, T> {
+    check: &'static str,
+    input_state: &'a mut S,
+    input_fn: SoxrFunction<S, T>,
 }
 
 impl Drop for Soxr {

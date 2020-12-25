@@ -6,7 +6,7 @@ use libsoxr::{
 use libsoxr_sys as soxr;
 
 mod shared_input_fn;
-use shared_input_fn::{TestState, test_input_fn};
+use shared_input_fn::{test_input_fn, TestState};
 
 #[test]
 fn test_custom_spec() {

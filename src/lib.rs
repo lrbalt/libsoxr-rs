@@ -64,4 +64,5 @@ pub use crate::{
     datatype::Datatype,
     soxr::Soxr,
     spec::{IOSpec, QualitySpec, RuntimeSpec},
+    error_handling::{ Error, Result }
 };

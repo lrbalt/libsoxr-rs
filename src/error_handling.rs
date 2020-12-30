@@ -2,6 +2,7 @@
 use std::borrow::Cow;
 use std::fmt;
 
+/// A Soxr error
 #[derive(Debug)]
 pub enum ErrorType {
     InvalidString,
@@ -21,15 +22,20 @@ impl fmt::Display for ErrorType {
     }
 }
 
+/// A Soxr error returned from a particular function
 #[derive(Debug)]
-pub struct Error(Option<Cow<'static, str>>, ErrorType);
+pub struct Error {
+    pub function: Option<Cow<'static, str>>,
+    pub error_type: ErrorType
+}
 
 impl Error {
     pub fn new(func: Option<Cow<'static, str>>, t: ErrorType) -> Error {
-        Error(func, t)
+        Error { function: func, error_type: t }
     }
+
     pub fn invalid_str(func: &'static str) -> Error {
-        Error(Some(func.into()), ErrorType::InvalidString)
+        Error::new(Some(func.into()), ErrorType::InvalidString)
     }
 }
 
@@ -41,11 +47,12 @@ impl ::std::error::Error for Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.0 {
-            Some(ref s) => write!(f, "SOXR error: '{}' from function '{}'", s, self.1),
-            None => write!(f, "SOXR error: '{}'", self.1),
+        match self.function {
+            Some(ref s) => write!(f, "SOXR error: '{}' from function '{}'", s, self.error_type),
+            None => write!(f, "SOXR error: '{}'", self.error_type),
         }
     }
 }
 
+/// Convenience type alias for `std::result::Result<T, crate::Error>`
 pub type Result<T> = ::std::result::Result<T, Error>;

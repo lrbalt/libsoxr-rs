@@ -49,9 +49,7 @@ fn test_data_fn() {
     };
 
     println!("Setting input function");
-    assert!(soxr
-        .set_input_safe(test_input_fn, Some(&mut state), 100)
-        .is_ok());
+    assert!(soxr.set_input(test_input_fn, Some(&mut state), 100).is_ok());
 
     // create buffer for resampled data
     let mut data = [1.1f32; 200];
@@ -87,9 +85,7 @@ fn test_with_custom_specs() {
     };
 
     println!("Setting input function");
-    assert!(soxr
-        .set_input_safe(test_input_fn, Some(&mut state), 100)
-        .is_ok());
+    assert!(soxr.set_input(test_input_fn, Some(&mut state), 100).is_ok());
 
     // create buffer for resampled data
     let mut data = [1.1f32; 200];

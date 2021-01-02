@@ -37,7 +37,7 @@ use std::{
 ///
 /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 /// let mut state = State { value: 1.0 };
-/// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+/// assert!(soxr.set_input(input_fn, Some(&mut state), 100).is_ok());
 ///```
 pub type SoxrFunction<S, T> = fn(&mut S, &mut [T], usize) -> Result<usize>;
 
@@ -277,7 +277,7 @@ impl Soxr {
     ///
     /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
     /// let mut state = State { value: 1.0 };
-    /// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+    /// assert!(soxr.set_input(input_fn, Some(&mut state), 100).is_ok());
     ///
     /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
     ///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
@@ -309,7 +309,7 @@ impl Soxr {
     ///
     /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
     /// let mut state = State { value: 1.0, state_error: None };
-    /// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+    /// assert!(soxr.set_input(input_fn, Some(&mut state), 100).is_ok());
     ///
     /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
     ///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
@@ -325,7 +325,7 @@ impl Soxr {
     /// // But you can use the State struct to pass specific errors which you can query on `soxr.error().is_some()`
     /// assert_eq!(state.state_error, Some("Some Error"));
     ///```
-    pub fn set_input_safe<'a, S, T>(
+    pub fn set_input<'a, S, T>(
         &'a mut self,
         input_fn: SoxrFunction<S, T>,
         state: Option<&'a mut S>,

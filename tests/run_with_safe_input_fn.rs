@@ -1,5 +1,5 @@
 use approx::*;
-use libsoxr::{Result, Soxr};
+use libsoxr::{QualityFlags, QualityRecipe, QualitySpec, Result, Soxr};
 
 pub struct MyState {
     check: &'static str,
@@ -38,7 +38,7 @@ fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_len: usize) -> Result
 #[test]
 fn test_data_fn() {
     println!("Creating Soxr");
-    let mut s = Soxr::create(1.0, 2.0, 2, None, None, None).unwrap();
+    let mut soxr = Soxr::create(1.0, 2.0, 2, None, None, None).unwrap();
 
     // create state for input_fn
     let mut state = MyState {
@@ -49,14 +49,14 @@ fn test_data_fn() {
     };
 
     println!("Setting input function");
-    assert!(s
-        .set_input_safe::<MyState, f32>(test_input_fn, Some(&mut state), 100)
+    assert!(soxr
+        .set_input_safe(test_input_fn, Some(&mut state), 100)
         .is_ok());
 
     // create buffer for resampled data
     let mut data = [1.1f32; 200];
     println!("first call");
-    assert_eq!(100, s.output(&mut data[0..], 100));
+    assert_eq!(100, soxr.output(&mut data[0..], 100));
     assert_abs_diff_ne!(data[0], 1.1);
 
     // tell test_input_fn to return end-of-input (0)
@@ -65,7 +65,45 @@ fn test_data_fn() {
     let mut buffer = [1.1f32; 200];
     println!("second");
     // flush all data from libsoxr until end-of-input
-    while s.output(&mut buffer[0..], 100) > 0 {
+    while soxr.output(&mut buffer[0..], 100) > 0 {
+        print!(".");
+        assert_abs_diff_ne!(buffer[0], 1.1);
+    }
+    println!();
+}
+
+#[test]
+fn test_with_custom_specs() {
+    println!("Creating Soxr");
+    let spec = QualitySpec::new(&QualityRecipe::VeryHigh, QualityFlags::HI_PREC_CLOCK);
+    let mut soxr = Soxr::create(1.0, 2.0, 2, None, Some(&spec), None).unwrap();
+
+    // create state for input_fn
+    let mut state = MyState {
+        check: "libsoxr",
+        command: 0,
+        value: 2.3,
+        channels: 2,
+    };
+
+    println!("Setting input function");
+    assert!(soxr
+        .set_input_safe(test_input_fn, Some(&mut state), 100)
+        .is_ok());
+
+    // create buffer for resampled data
+    let mut data = [1.1f32; 200];
+    println!("first call");
+    assert_eq!(100, soxr.output(&mut data[0..], 100));
+    assert_abs_diff_ne!(data[0], 1.1);
+
+    // tell test_input_fn to return end-of-input (0)
+    state.command = 1;
+    // other buffer for resampled data
+    let mut buffer = [1.1f32; 200];
+    println!("second");
+    // flush all data from libsoxr until end-of-input
+    while soxr.output(&mut buffer[0..], 100) > 0 {
         print!(".");
         assert_abs_diff_ne!(buffer[0], 1.1);
     }

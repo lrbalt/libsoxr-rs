@@ -1,5 +1,5 @@
 use approx::*;
-use libsoxr::Soxr;
+use libsoxr::{Result, Soxr};
 
 pub struct MyState {
     check: &'static str,
@@ -8,7 +8,7 @@ pub struct MyState {
     channels: usize,
 }
 
-fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_len: usize) -> usize {
+fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_len: usize) -> Result<usize> {
     assert_eq!("libsoxr", state.check);
 
     print!(
@@ -28,10 +28,10 @@ fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_len: usize) -> usize 
     // for testing: set command to non-zero to force end-of-input (eoi)
     if state.command == 0 {
         println!("returning {:?}", req_len);
-        req_len
+        Ok(req_len)
     } else {
         println!("eoi");
-        0
+        Ok(0)
     }
 }
 

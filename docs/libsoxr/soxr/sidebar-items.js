@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Soxr","Wrapper for `soxr_t`"]]});
+initSidebarItems({"struct":[["Soxr","This is the starting point for the Soxr algorithm."]],"type":[["SoxrFunction","Signature of an input function that supplies SOXR with input data. `S` is type of state data and `T` is type of target buffer and `E` is the type of Error that the fn can return. The last `usize` is the number of samples that Soxr asks this function to load into the buffer. The function should return Ok(0) to indicate end-of-input or an Error in case of problems getting input data."]]});

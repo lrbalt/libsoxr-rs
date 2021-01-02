@@ -48,7 +48,7 @@ impl IOSpec {
 
 bitflags! {
     pub struct QualityFlags: std::os::raw::c_ulong {
-        const ROLLOFF_SMALL = soxr::SOXR_ROLLOFF_SMALL as std::os::raw::c_ulong; 
+        const ROLLOFF_SMALL = soxr::SOXR_ROLLOFF_SMALL as std::os::raw::c_ulong;
         const ROLLOFF_MEDIUM = soxr::SOXR_ROLLOFF_MEDIUM as std::os::raw::c_ulong;
         const ROLLOFF_NONE = soxr::SOXR_ROLLOFF_NONE as std::os::raw::c_ulong;
         const HI_PREC_CLOCK = soxr::SOXR_HI_PREC_CLOCK as std::os::raw::c_ulong;

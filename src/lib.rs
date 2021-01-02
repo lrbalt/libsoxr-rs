@@ -13,15 +13,8 @@
 //!
 //! add the following to your Cargo.toml:
 //! ```toml
-//! [dependencies.libsoxr]
-//! git = "https://github.com/lrbalt/libsoxr-rs"
-//! ```
-//!
-//! and add the crate:
-//!
-//! ```ignore
-//! extern crate libsoxr;
-//! use libsoxr::Soxr;
+//! [dependencies]
+//! libsoxr = "0.2"
 //! ```
 //!
 //! # Example
@@ -29,7 +22,7 @@
 //! ```rust
 //! # use libsoxr::Soxr;
 //! // upscale factor 2, one channel with all the defaults
-//! let s = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+//! let soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 //!
 //! // source data, taken from 1-single-block.c of libsoxr examples.
 //! let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
@@ -40,15 +33,15 @@
 //! // create room for 2*48 = 96 samples
 //! let mut target: [f32; 96] = [0.0; 96];
 //!
-//! // two runs. last run with None to inform resampler of end-of-input
-//! let result = s.process(Some(&source), &mut target).and_then(|_| {
-//!     s.process::<f32, f32>(None, &mut target[0..]).and_then(|_| {
-//!         for s in target.iter() {
-//!             print!("{:?}\t", s)
-//!         }
-//!         Ok(())
-//!     })
-//! });
+//! // Two runs. First run will convert the source data into target.
+//! // Last run with None is to inform resampler of end-of-input so it can clean up
+//! soxr.process(Some(&source), &mut target).unwrap();
+//! soxr.process::<f32,_>(None, &mut target[0..]).unwrap();
+//!
+//! // just print the values in target
+//! for s in target.iter() {
+//!   print!("{:?}\t", s)
+//! }
 //! ```
 #[macro_use]
 extern crate bitflags;
@@ -62,6 +55,7 @@ mod wrapper_helpers;
 
 pub use crate::{
     datatype::Datatype,
-    soxr::Soxr,
-    spec::{IOSpec, QualitySpec, RuntimeSpec},
+    error_handling::{Error, ErrorType, Result},
+    soxr::{Soxr, SoxrFunction},
+    spec::{IOSpec, QualityFlags, QualityRecipe, QualitySpec, RuntimeSpec},
 };

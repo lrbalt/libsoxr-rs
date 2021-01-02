@@ -1,6 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/soxr.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>soxr.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/soxr.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>soxr.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../libsoxr/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../libsoxr/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -527,6 +527,86 @@
 <span id="524">524</span>
 <span id="525">525</span>
 <span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Rust API for SOXR.</span>
 
@@ -542,20 +622,58 @@
     <span class="ident">ptr</span>,
 };
 
-<span class="doccomment">/// Wrapper for `soxr_t`</span>
+<span class="doccomment">/// Signature of an input function that supplies SOXR with input data.</span>
+<span class="doccomment">/// `S` is type of state data and `T` is type of target buffer and `E` is the type of Error that the fn can return.</span>
+<span class="doccomment">/// The last `usize` is the number of samples that Soxr asks this function to load into the buffer.</span>
+<span class="doccomment">/// The function should return Ok(0) to indicate end-of-input or an Error in case of problems getting input data.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// struct State {</span>
+<span class="doccomment">///   // data for input function to supply Soxr with source samples.</span>
+<span class="doccomment">///   // In this case just a value, but you could put a handle to a FLAC file into this.</span>
+<span class="doccomment">///   value: f32</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let input_fn = |state: &amp;mut State, buffer: &amp;mut [f32], samples: usize| {</span>
+<span class="doccomment">///     for sample in buffer.iter_mut().take(samples) {</span>
+<span class="doccomment">///       *sample = state.value;</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">///     // if end-of-input: return Ok(O);</span>
+<span class="doccomment">///     // if error:  Err(Error::new(Some(&quot;input_fn&quot;.into()), ErrorType::ProcessError(&quot;Unexpected end of input&quot;.into())))</span>
+<span class="doccomment">///     Ok(samples)</span>
+<span class="doccomment">///   };</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();</span>
+<span class="doccomment">/// let mut state = State { value: 1.0 };</span>
+<span class="doccomment">/// assert!(soxr.set_input_safe(input_fn, Some(&amp;mut state), 100).is_ok());</span>
+<span class="doccomment">///```</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">SoxrFunction</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">S</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>], <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+
+<span class="doccomment">/// This is the starting point for the Soxr algorithm.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Soxr</span> {
     <span class="ident">soxr</span>: <span class="ident">soxr</span>::<span class="ident">soxr_t</span>,
+    <span class="ident">channels</span>: <span class="ident">u32</span>,
     <span class="ident">error</span>: <span class="ident">CString</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Soxr</span> {
-    <span class="doccomment">/// Create a new resampler</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When `io_spec`, `quality_spec` or `runtime_spec` is `None` then SOXR will use it defaults:</span>
-    <span class="doccomment">/// * Default io_spec      is per [IOSpec]([Datatype](crate::datatype::Datatype)::FLOAT32I, [Datatype](crate::datatype::Datatype)::FLOAT32I)</span>
+    <span class="doccomment">/// Create a new resampler. When `io_spec`, `quality_spec` or `runtime_spec` is `None` then SOXR will use it defaults:</span>
+    <span class="doccomment">/// * Default io_spec      is per [IOSpec]([Datatype](crate::datatype::Datatype)::Float32I, [Datatype](crate::datatype::Datatype)::Float32I)</span>
     <span class="doccomment">/// * Default quality_spec is per [QualitySpec]([QualityRecipe](crate::spec::QualityRecipe)::High, [QualityFlags](crate::spec::QualityFlags)::ROLLOFF_SMALL)</span>
-    <span class="doccomment">/// * Default runtime_spec is per [RuntimeSpec] (1)          </span>
+    <span class="doccomment">/// * Default runtime_spec is per [RuntimeSpec] (1)    </span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///```rust</span>
+    <span class="doccomment">/// use libsoxr::{Datatype, IOSpec, QualitySpec, RuntimeSpec, Soxr, QualityRecipe, QualityFlags};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let io_spec = IOSpec::new(Datatype::Float32I, Datatype::Float64I);</span>
+    <span class="doccomment">/// let quality_spec = QualitySpec::new(&amp;QualityRecipe::VeryHigh, QualityFlags::HI_PREC_CLOCK);</span>
+    <span class="doccomment">/// let runtime_spec = RuntimeSpec::new(4);</span>
+    <span class="doccomment">/// let mut soxr = Soxr::create(1.0, 2.0, 1, Some(&amp;io_spec), Some(&amp;quality_spec), Some(&amp;runtime_spec));</span>
+    <span class="doccomment">/// assert!(soxr.is_ok());</span>
+    <span class="doccomment">///```      </span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(
         <span class="ident">input_rate</span>: <span class="ident">f64</span>,
         <span class="ident">output_rate</span>: <span class="ident">f64</span>,
@@ -576,6 +694,7 @@
         <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">is_null</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">Soxr</span> {
                 <span class="ident">soxr</span>,
+                <span class="ident">channels</span>: <span class="ident">num_channels</span>,
                 <span class="ident">error</span>: <span class="ident">CString</span>::<span class="ident">new</span>(<span class="string">&quot;&quot;</span>).<span class="ident">unwrap</span>(),
             })
         } <span class="kw">else</span> {
@@ -587,7 +706,7 @@
         }
     }
 
-    <span class="doccomment">/// Get version of libsoxr</span>
+    <span class="doccomment">/// Get version of libsoxr library</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">unsafe</span> { <span class="ident">from_const</span>(<span class="string">&quot;Soxr::version&quot;</span>, <span class="ident">soxr</span>::<span class="ident">soxr_version</span>()).<span class="ident">unwrap</span>() }
     }
@@ -608,9 +727,10 @@
     }
 
     <span class="doccomment">/// Change number of channels after creating Soxr object</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_num_channels</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">num_channels</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_num_channels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">num_channels</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">soxr</span>::<span class="ident">soxr_set_num_channels</span>(<span class="self">self</span>.<span class="ident">soxr</span>, <span class="ident">num_channels</span>) };
         <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">is_null</span>() {
+            <span class="self">self</span>.<span class="ident">channels</span> <span class="op">=</span> <span class="ident">num_channels</span>;
             <span class="prelude-val">Ok</span>(())
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">new</span>(
@@ -664,7 +784,9 @@
         }
     }
 
-    <span class="doccomment">/// For variable-rate resampling. See example # 5 of libsoxr repository for how to create a</span>
+    <span class="doccomment">/// For variable-rate resampling.</span>
+    <span class="doccomment">/// See [example # 5](https://sourceforge.net/p/soxr/code/ci/master/tree/examples/5-variable-rate.c)</span>
+    <span class="doccomment">/// of libsoxr repository for how to create a</span>
     <span class="doccomment">/// variable-rate resampler and how to use this function.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_io_ratio</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">io_ratio</span>: <span class="ident">f64</span>, <span class="ident">slew_len</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">soxr</span>::<span class="ident">soxr_set_io_ratio</span>(<span class="self">self</span>.<span class="ident">soxr</span>, <span class="ident">io_ratio</span>, <span class="ident">slew_len</span>) };
@@ -685,6 +807,28 @@
     <span class="doccomment">/// the resampled data. Furthermore, to indicate end-of-input to the resampler, always end with</span>
     <span class="doccomment">/// a last call to process with `None` as `buf_in`. The result contains number of input samples</span>
     <span class="doccomment">/// used and number of output samples places in &#39;buf_out&#39;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use libsoxr::Soxr;</span>
+    <span class="doccomment">/// // upscale factor 2, one channel with all the defaults</span>
+    <span class="doccomment">/// let soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // source data, taken from 1-single-block.c of libsoxr examples.</span>
+    <span class="doccomment">/// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,</span>
+    <span class="doccomment">///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,</span>
+    <span class="doccomment">///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,</span>
+    <span class="doccomment">///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // create room for 2*48 = 96 samples</span>
+    <span class="doccomment">/// let mut target: [f32; 96] = [0.0; 96];</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Two runs. First run will convert the source data into target.</span>
+    <span class="doccomment">/// // Last run with None is to inform resampler of end-of-input so it can clean up</span>
+    <span class="doccomment">/// soxr.process(Some(&amp;source), &amp;mut target).unwrap();</span>
+    <span class="doccomment">/// soxr.process::&lt;f32,_&gt;(None, &amp;mut target[0..]).unwrap();</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">buf_in</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">I</span>]<span class="op">&gt;</span>, <span class="ident">buf_out</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">O</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idone</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">odone</span> <span class="op">=</span> <span class="number">0</span>;
@@ -813,6 +957,109 @@
         }
     }
 
+    <span class="doccomment">/// Sets the input function of type [SoxrFunction].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example for &#39;happy flow&#39;</span>
+    <span class="doccomment">///```rust</span>
+    <span class="doccomment">/// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct State {</span>
+    <span class="doccomment">///   // data for input function to supply Soxr with source samples.</span>
+    <span class="doccomment">///   // In this case just a value, but you could put a handle to a FLAC file into this.</span>
+    <span class="doccomment">///   value: f32</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let input_fn = |state: &amp;mut State, buffer: &amp;mut [f32], samples: usize| {</span>
+    <span class="doccomment">///     for sample in buffer.iter_mut().take(samples) {</span>
+    <span class="doccomment">///        *sample = state.value;</span>
+    <span class="doccomment">///     }</span>
+    <span class="doccomment">///     return Ok(samples);</span>
+    <span class="doccomment">///  };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();</span>
+    <span class="doccomment">/// let mut state = State { value: 1.0 };</span>
+    <span class="doccomment">/// assert!(soxr.set_input_safe(input_fn, Some(&amp;mut state), 100).is_ok());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,</span>
+    <span class="doccomment">///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,</span>
+    <span class="doccomment">///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,</span>
+    <span class="doccomment">///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // create room for 2*48 = 96 samples</span>
+    <span class="doccomment">/// let mut target: [f32; 96] = [0.0; 96];</span>
+    <span class="doccomment">/// // ask SOXR to fill target with 96 samples for which it will use `input_fn`</span>
+    <span class="doccomment">/// assert!(soxr.output(&amp;mut target[..], 96) == 96);</span>
+    <span class="doccomment">/// assert!(soxr.error().is_none());</span>
+    <span class="doccomment">///```</span>
+    <span class="doccomment">/// ## Example to handle error in `input_fn`</span>
+    <span class="doccomment">/// The input function may return an error. You can handle that using the returned Error type.</span>
+    <span class="doccomment">///```rust</span>
+    <span class="doccomment">/// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// struct State {</span>
+    <span class="doccomment">///   // data for input function to supply Soxr with source samples.</span>
+    <span class="doccomment">///   // In this case just a value, but you could put a handle to a FLAC file into this.</span>
+    <span class="doccomment">///   value: f32,</span>
+    <span class="doccomment">///   state_error: Option&lt;&amp;&#39;static str&gt;,</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let input_fn = |state: &amp;mut State, buffer: &amp;mut [f32], samples: usize| {</span>
+    <span class="doccomment">///     state.state_error = Some(&quot;Some Error&quot;);</span>
+    <span class="doccomment">///     Err(Error::new(Some(&quot;input_fn&quot;.into()), ErrorType::ProcessError(&quot;Unexpected end of input&quot;.into())))</span>
+    <span class="doccomment">///  };</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();</span>
+    <span class="doccomment">/// let mut state = State { value: 1.0, state_error: None };</span>
+    <span class="doccomment">/// assert!(soxr.set_input_safe(input_fn, Some(&amp;mut state), 100).is_ok());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,</span>
+    <span class="doccomment">///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,</span>
+    <span class="doccomment">///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,</span>
+    <span class="doccomment">///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // create room for 2*48 = 96 samples</span>
+    <span class="doccomment">/// let mut target: [f32; 96] = [0.0; 96];</span>
+    <span class="doccomment">/// assert!(soxr.output(&amp;mut target[..], 96) == 0);</span>
+    <span class="doccomment">/// assert!(soxr.error().is_some());</span>
+    <span class="doccomment">/// // Please note that the ProcessError is not passed through into `error()`</span>
+    <span class="doccomment">/// assert_eq!(soxr.error().unwrap(), &quot;input function reported failure&quot;);</span>
+    <span class="doccomment">/// // But you can use the State struct to pass specific errors which you can query on `soxr.error().is_some()`</span>
+    <span class="doccomment">/// assert_eq!(state.state_error, Some(&quot;Some Error&quot;));</span>
+    <span class="doccomment">///```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_input_safe</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">input_fn</span>: <span class="ident">SoxrFunction</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">S</span><span class="op">&gt;</span>,
+        <span class="ident">max_ilen</span>: <span class="ident">usize</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">state_data</span> <span class="op">=</span> <span class="ident">state</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">TrampolineData</span> {
+                <span class="ident">check</span>: <span class="string">&quot;trampoline&quot;</span>,
+                <span class="ident">input_state</span>: <span class="ident">s</span>,
+                <span class="ident">input_fn</span>,
+                <span class="ident">last_error</span>: <span class="prelude-val">None</span>,
+            })
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">s</span>)) <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_fn_state_t</span>);
+
+        <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="kw">unsafe</span> {
+            <span class="ident">soxr</span>::<span class="ident">soxr_set_input_fn</span>(
+                <span class="self">self</span>.<span class="ident">soxr</span>,
+                <span class="prelude-val">Some</span>(<span class="ident">input_trampoline</span>::<span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>),
+                <span class="ident">state_data</span>.<span class="ident">unwrap_or</span>(<span class="ident">ptr</span>::<span class="ident">null</span>()) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> ::<span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>,
+                <span class="ident">max_ilen</span>,
+            )
+        };
+
+        <span class="kw">if</span> <span class="ident">error</span>.<span class="ident">is_null</span>() {
+            <span class="prelude-val">Ok</span>(())
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">new</span>(
+                <span class="prelude-val">Some</span>(<span class="string">&quot;Soxr::set_input&quot;</span>.<span class="ident">into</span>()),
+                <span class="ident">ErrorType</span>::<span class="ident">ProcessError</span>(<span class="ident">from_const</span>(<span class="string">&quot;Soxr::set_input&quot;</span>, <span class="ident">error</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>()),
+            ))
+        }
+    }
+
     <span class="doccomment">/// Resample and output a block of data using an app-supplied input function.</span>
     <span class="doccomment">/// This function must look and behave like `soxr_input_fn_t` and be registered with a</span>
     <span class="doccomment">/// previously created stream resampler using `set_input` then repeatedly call `output`.</span>
@@ -825,11 +1072,56 @@
     <span class="doccomment">/// // call output using a buffer of 100 mono samples. For stereo devide by 2, so this buffer</span>
     <span class="doccomment">/// // could hold 100 / number_of_channels = 50 stereo samples.</span>
     <span class="doccomment">/// let mut buffer = [0.0f32; 100];</span>
-    <span class="doccomment">/// assert!(s.output(&amp;mut buffer[..], buffer.len()) &gt; 0);</span>
+    <span class="doccomment">/// assert!(s.output(&amp;mut buffer[..], 100) &gt; 0);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">output</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">S</span>], <span class="ident">samples</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(
+            <span class="ident">data</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">samples</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">channels</span> <span class="kw">as</span> <span class="ident">usize</span>,
+            <span class="string">&quot;the data buffer does not contain enough space to hold requested samples&quot;</span>
+        );
         <span class="kw">unsafe</span> { <span class="ident">soxr</span>::<span class="ident">soxr_output</span>(<span class="self">self</span>.<span class="ident">soxr</span>, <span class="ident">data</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">samples</span>) }
     }
+}
+
+<span class="comment">// this function is called from Soxr and used the closure inside TrampolineData to get the input samples. All unsafe pointer</span>
+<span class="comment">// magic happens inside this function, not the passed closure.</span>
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">input_trampoline</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="ident">input_fn_state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> ::<span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>,
+    <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">soxr</span>::<span class="ident">soxr_in_t</span>,
+    <span class="ident">requested_len</span>: <span class="ident">usize</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="ident">trampoline_data</span> <span class="op">=</span> <span class="ident">input_fn_state</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">TrampolineData</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>;
+    <span class="kw">unsafe</span> {
+        <span class="macro">assert_eq</span><span class="macro">!</span>((<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">check</span>, <span class="string">&quot;trampoline&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">input_fn</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_fn</span>;
+        <span class="kw">let</span> <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>] <span class="op">=</span> <span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>((<span class="kw-2">*</span><span class="ident">data</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="ident">requested_len</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">input_fn</span>(
+            (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_state</span>,
+            <span class="ident">input_data</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>],
+            <span class="ident">requested_len</span>,
+        );
+
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="prelude-val">Ok</span>(<span class="ident">samples_or_zero</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">samples_or_zero</span>,
+            <span class="prelude-val">Err</span>(<span class="ident">Error</span>(<span class="kw">_</span>, <span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">last_error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>);
+                <span class="kw-2">*</span><span class="ident">data</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null_mut</span>();
+                <span class="number">0</span>
+            }
+        }
+    }
+}
+
+<span class="comment">// This struct is passed to the input_trampoline function</span>
+<span class="comment">// which uses this to call the closure `input_fn` with `input_state`</span>
+<span class="comment">// last_error is used to record the error that input_fn returns.</span>
+<span class="comment">// TODO: figure out how to pass this error to calling soxr_output which does not have access to this trampoline struct</span>
+<span class="kw">struct</span> <span class="ident">TrampolineData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="ident">check</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+    <span class="ident">input_state</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">S</span>,
+    <span class="ident">input_fn</span>: <span class="ident">SoxrFunction</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">last_error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ErrorType</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Soxr</span> {
@@ -841,8 +1133,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">soxr_tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Soxr</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">spec</span>::{<span class="ident">IOSpec</span>, <span class="ident">QualityFlags</span>, <span class="ident">QualityRecipe</span>, <span class="ident">QualitySpec</span>, <span class="ident">RuntimeSpec</span>};
-    <span class="kw">use</span> <span class="ident">libsoxr_sys</span> <span class="kw">as</span> <span class="ident">soxr</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">spec</span>::{<span class="ident">IOSpec</span>, <span class="ident">QualitySpec</span>, <span class="ident">RuntimeSpec</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_version</span>() {
@@ -921,137 +1212,6 @@
             })
         });
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_ok</span>());
-    }
-
-    <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">test_input_fn</span>(
-        <span class="ident">state</span>: <span class="ident">soxr</span>::<span class="ident">soxr_fn_state_t_mut</span>,
-        <span class="ident">buf</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">soxr</span>::<span class="ident">soxr_in_t</span>,
-        <span class="ident">req_len</span>: <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Cast to raw point to a TestState. Beware not to use Box::from_raw as it will</span>
-            <span class="comment">// try to destroy the struct that is managed elsewere</span>
-            <span class="kw">let</span> <span class="ident">s</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TestState</span> <span class="op">=</span> <span class="ident">state</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TestState</span>;
-
-            <span class="comment">// check on a known string in TestState to make sure the raw pointer is pointing</span>
-            <span class="comment">// to our TestState</span>
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;libsoxr&quot;</span>, (<span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">check</span>);
-
-            <span class="macro">print</span><span class="macro">!</span>(
-                <span class="string">&quot;setting {}/{} values for {} with {}\t&quot;</span>,
-                <span class="ident">req_len</span>,
-                (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">source_buffer</span>.<span class="ident">len</span>(),
-                (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">check</span>,
-                (<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">command</span>
-            );
-
-            <span class="comment">// just for this test, so we can check the output</span>
-            <span class="kw">let</span> <span class="ident">value_to_use</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">value</span>;
-
-            <span class="comment">// be aware: req_len is number of samples per channel, so for stereo you want to return</span>
-            <span class="comment">// req_len * 2 values in buf</span>
-            <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> (<span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">source_buffer</span>.<span class="ident">iter_mut</span>().<span class="ident">take</span>(<span class="ident">req_len</span>) {
-                <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">value_to_use</span>;
-            }
-
-            {
-                <span class="comment">// buf is a pointer to a pointer to a buffer with source samples</span>
-                <span class="comment">// data is a pointer to the buffer, so data.as_ptr() is the same, but the raw</span>
-                <span class="comment">// pointer. Put it in *buf to tell libsoxr where to find the buffer</span>
-                <span class="kw">let</span> <span class="ident">data</span>: <span class="kw-2">&amp;</span>[<span class="ident">f32</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>(<span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">source_buffer</span>[..];
-                <span class="kw-2">*</span><span class="ident">buf</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_in_t</span>;
-            }
-
-            <span class="comment">// for testing: set command to non-zero to force end-of-input (eoi)</span>
-            <span class="kw">if</span> (<span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">command</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;returning {:?}&quot;</span>, <span class="ident">req_len</span>);
-                <span class="ident">req_len</span>
-            } <span class="kw">else</span> {
-                <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;eoi&quot;</span>);
-                <span class="number">0</span>
-            }
-        }
-    }
-
-    <span class="comment">// struct to hold state for input_fn</span>
-    <span class="kw">struct</span> <span class="ident">TestState</span> {
-        <span class="ident">check</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">command</span>: <span class="ident">u32</span>,
-        <span class="ident">value</span>: <span class="ident">f32</span>,
-        <span class="comment">// use this buffer for source samples to avoid repeated allocations</span>
-        <span class="ident">source_buffer</span>: [<span class="ident">f32</span>; <span class="number">100</span>],
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_data_fn</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Soxr</span>::<span class="ident">create</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">1</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
-
-        <span class="comment">// create state for input_fn</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">TestState</span> {
-            <span class="ident">check</span>: <span class="string">&quot;libsoxr&quot;</span>,
-            <span class="ident">command</span>: <span class="number">0</span>,
-            <span class="ident">value</span>: <span class="number">2.3</span>,
-            <span class="ident">source_buffer</span>: [<span class="number">1.2</span>; <span class="number">100</span>],
-        };
-
-        <span class="comment">// convert to raw pointer to pass into libsoxr using set_input</span>
-        <span class="kw">let</span> <span class="ident">state_data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)) <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_fn_state_t</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">set_input</span>(<span class="prelude-val">Some</span>(<span class="ident">test_input_fn</span>), <span class="ident">state_data</span>, <span class="number">100</span>).<span class="ident">is_ok</span>());
-
-        <span class="comment">// create buffer for resampled data</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">1.1f32</span>; <span class="number">200</span>];
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;first call&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">200</span>, <span class="ident">s</span>.<span class="ident">output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>[<span class="number">0</span>..], <span class="number">200</span>));
-        <span class="macro">assert_abs_diff_ne</span><span class="macro">!</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="number">1.1</span>);
-
-        <span class="comment">// tell test_input_fn to return end-of-input (0)</span>
-        <span class="ident">state</span>.<span class="ident">command</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="comment">// other buffer for resampled data</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">1.1f32</span>; <span class="number">200</span>];
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;second&quot;</span>);
-        <span class="comment">// flush all data from libsoxr until end-of-input</span>
-        <span class="kw">while</span> <span class="ident">s</span>.<span class="ident">output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>[<span class="number">0</span>..], <span class="number">200</span>) <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;.{}&quot;</span>, <span class="ident">buffer</span>[<span class="number">0</span>]);
-            <span class="macro">assert_abs_diff_ne</span><span class="macro">!</span>(<span class="ident">buffer</span>[<span class="number">0</span>], <span class="number">1.1</span>);
-        }
-        <span class="macro">println</span><span class="macro">!</span>();
-    }
-
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_custom_spec</span>() {
-        <span class="comment">// test for issue #2</span>
-        <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">QualitySpec</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">QualityRecipe</span>::<span class="ident">VeryHigh</span>, <span class="ident">QualityFlags</span>::<span class="ident">HI_PREC_CLOCK</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Soxr</span>::<span class="ident">create</span>(<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">1</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">spec</span>), <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
-
-        <span class="comment">// create state for input_fn</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">TestState</span> {
-            <span class="ident">check</span>: <span class="string">&quot;libsoxr&quot;</span>,
-            <span class="ident">command</span>: <span class="number">0</span>,
-            <span class="ident">value</span>: <span class="number">2.3</span>,
-            <span class="ident">source_buffer</span>: [<span class="number">1.2</span>; <span class="number">100</span>],
-        };
-
-        <span class="comment">// convert to raw pointer to pass into libsoxr using set_input</span>
-        <span class="kw">let</span> <span class="ident">state_data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">state</span>)) <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_fn_state_t</span>);
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">set_input</span>(<span class="prelude-val">Some</span>(<span class="ident">test_input_fn</span>), <span class="ident">state_data</span>, <span class="number">100</span>).<span class="ident">is_ok</span>());
-
-        <span class="comment">// create buffer for resampled data</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> [<span class="number">1.1f32</span>; <span class="number">200</span>];
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;first call&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">200</span>, <span class="ident">s</span>.<span class="ident">output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">data</span>[<span class="number">0</span>..], <span class="number">200</span>));
-        <span class="macro">assert_abs_diff_ne</span><span class="macro">!</span>(<span class="ident">data</span>[<span class="number">0</span>], <span class="number">1.1</span>);
-
-        <span class="comment">// tell test_input_fn to return end-of-input (0)</span>
-        <span class="ident">state</span>.<span class="ident">command</span> <span class="op">=</span> <span class="number">1</span>;
-        <span class="comment">// other buffer for resampled data</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> [<span class="number">1.1f32</span>; <span class="number">200</span>];
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;second&quot;</span>);
-        <span class="comment">// flush all data from libsoxr until end-of-input</span>
-        <span class="kw">while</span> <span class="ident">s</span>.<span class="ident">output</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>[<span class="number">0</span>..], <span class="number">200</span>) <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;.{}&quot;</span>, <span class="ident">buffer</span>[<span class="number">0</span>]);
-            <span class="macro">assert_abs_diff_ne</span><span class="macro">!</span>(<span class="ident">buffer</span>[<span class="number">0</span>], <span class="number">1.1</span>);
-        }
-        <span class="macro">println</span><span class="macro">!</span>();
     }
 }
 </pre></div>

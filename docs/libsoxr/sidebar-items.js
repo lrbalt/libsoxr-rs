@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["datatype","Encapsulated data types for samples"],["soxr","Rust API for SOXR."],["spec","For specifying the runtime settings of the resampler For specifying the data type of input and output"]]});
+initSidebarItems({"enum":[["ErrorType",""]],"mod":[["datatype","Encapsulated data types for samples"],["soxr","Rust API for SOXR."],["spec","For specifying the runtime settings of the resampler For specifying the data type of input and output"]],"struct":[["Error",""]],"type":[["Result",""]]});

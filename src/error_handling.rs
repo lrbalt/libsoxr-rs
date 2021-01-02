@@ -22,7 +22,7 @@ impl fmt::Display for ErrorType {
 }
 
 #[derive(Debug)]
-pub struct Error(Option<Cow<'static, str>>, ErrorType);
+pub struct Error(pub(crate) Option<Cow<'static, str>>, pub(crate) ErrorType);
 
 impl Error {
     pub fn new(func: Option<Cow<'static, str>>, t: ErrorType) -> Error {

@@ -1,7 +1,7 @@
 //! Encapsulated data types for samples
 use libsoxr_sys as soxr;
 
-/// Datatypes supported for I/O to/from the resampler. 
+/// Datatypes supported for I/O to/from the resampler.
 /// Use the I data types for Interleaved channels and use the S data types for split channels. Wrapper for `soxr_datatype_t`.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Datatype {

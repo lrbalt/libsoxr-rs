@@ -12,9 +12,36 @@ use std::{
     ptr,
 };
 
-pub type SoxrFunction<S, T> = fn(&mut S, &mut [T], usize) -> usize;
+/// Signature of an input function that supplies SOXR with input data.
+/// `S` is type of state data and `T` is type of target buffer and `E` is the type of Error that the fn can return.
+/// The last `usize` is the number of samples that Soxr asks this function to load into the buffer.
+/// The function should return Ok(0) to indicate end-of-input or an Error in case of problems getting input data.
+///
+/// ```rust
+/// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};
+///
+/// struct State {
+///   // data for input function to supply Soxr with source samples.
+///   // In this case just a value, but you could put a handle to a FLAC file into this.
+///   value: f32
+/// }
+///
+/// let input_fn = |state: &mut State, buffer: &mut [f32], samples: usize| {
+///     for sample in buffer.iter_mut().take(samples) {
+///       *sample = state.value;
+///     }
+///     // if end-of-input: return Ok(O);
+///     // if error:  Err(Error::new(Some("input_fn".into()), ErrorType::ProcessError("Unexpected end of input".into())))
+///     Ok(samples)
+///   };
+///
+/// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+/// let mut state = State { value: 1.0 };
+/// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+///```
+pub type SoxrFunction<S, T> = fn(&mut S, &mut [T], usize) -> Result<usize>;
 
-/// Wrapper for `soxr_t`
+/// This is the starting point for the Soxr algorithm.
 #[derive(Debug)]
 pub struct Soxr {
     soxr: soxr::soxr_t,
@@ -23,12 +50,20 @@ pub struct Soxr {
 }
 
 impl Soxr {
-    /// Create a new resampler
-    ///
-    /// When `io_spec`, `quality_spec` or `runtime_spec` is `None` then SOXR will use it defaults:
-    /// * Default io_spec      is per [IOSpec]([Datatype](crate::datatype::Datatype)::FLOAT32I, [Datatype](crate::datatype::Datatype)::FLOAT32I)
+    /// Create a new resampler. When `io_spec`, `quality_spec` or `runtime_spec` is `None` then SOXR will use it defaults:
+    /// * Default io_spec      is per [IOSpec]([Datatype](crate::datatype::Datatype)::Float32I, [Datatype](crate::datatype::Datatype)::Float32I)
     /// * Default quality_spec is per [QualitySpec]([QualityRecipe](crate::spec::QualityRecipe)::High, [QualityFlags](crate::spec::QualityFlags)::ROLLOFF_SMALL)
-    /// * Default runtime_spec is per [RuntimeSpec] (1)          
+    /// * Default runtime_spec is per [RuntimeSpec] (1)    
+    ///
+    ///```rust
+    /// use libsoxr::{Datatype, IOSpec, QualitySpec, RuntimeSpec, Soxr, QualityRecipe, QualityFlags};
+    ///
+    /// let io_spec = IOSpec::new(Datatype::Float32I, Datatype::Float64I);
+    /// let quality_spec = QualitySpec::new(&QualityRecipe::VeryHigh, QualityFlags::HI_PREC_CLOCK);
+    /// let runtime_spec = RuntimeSpec::new(4);
+    /// let mut soxr = Soxr::create(1.0, 2.0, 1, Some(&io_spec), Some(&quality_spec), Some(&runtime_spec));
+    /// assert!(soxr.is_ok());
+    ///```      
     pub fn create(
         input_rate: f64,
         output_rate: f64,
@@ -61,7 +96,7 @@ impl Soxr {
         }
     }
 
-    /// Get version of libsoxr
+    /// Get version of libsoxr library
     pub fn version() -> &'static str {
         unsafe { from_const("Soxr::version", soxr::soxr_version()).unwrap() }
     }
@@ -139,7 +174,9 @@ impl Soxr {
         }
     }
 
-    /// For variable-rate resampling. See example # 5 of libsoxr repository for how to create a
+    /// For variable-rate resampling.
+    /// See [example # 5](https://sourceforge.net/p/soxr/code/ci/master/tree/examples/5-variable-rate.c)
+    /// of libsoxr repository for how to create a
     /// variable-rate resampler and how to use this function.
     pub fn set_io_ratio(&mut self, io_ratio: f64, slew_len: usize) -> Result<()> {
         let error = unsafe { soxr::soxr_set_io_ratio(self.soxr, io_ratio, slew_len) };
@@ -160,6 +197,28 @@ impl Soxr {
     /// the resampled data. Furthermore, to indicate end-of-input to the resampler, always end with
     /// a last call to process with `None` as `buf_in`. The result contains number of input samples
     /// used and number of output samples places in 'buf_out'
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// # use libsoxr::Soxr;
+    /// // upscale factor 2, one channel with all the defaults
+    /// let soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+    ///
+    /// // source data, taken from 1-single-block.c of libsoxr examples.
+    /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
+    ///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
+    ///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,
+    ///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
+    ///
+    /// // create room for 2*48 = 96 samples
+    /// let mut target: [f32; 96] = [0.0; 96];
+    ///
+    /// // Two runs. First run will convert the source data into target.
+    /// // Last run with None is to inform resampler of end-of-input so it can clean up
+    /// soxr.process(Some(&source), &mut target).unwrap();
+    /// soxr.process::<f32,_>(None, &mut target[0..]).unwrap();
+    /// ```
     pub fn process<I, O>(&self, buf_in: Option<&[I]>, buf_out: &mut [O]) -> Result<(usize, usize)> {
         let mut idone = 0;
         let mut odone = 0;
@@ -288,8 +347,77 @@ impl Soxr {
         }
     }
 
+    /// Sets the input function of type [SoxrFunction].
+    ///
+    /// ## Example for 'happy flow'
+    ///```rust
+    /// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};
+    ///
+    /// struct State {
+    ///   // data for input function to supply Soxr with source samples.
+    ///   // In this case just a value, but you could put a handle to a FLAC file into this.
+    ///   value: f32
+    /// }
+    ///
+    /// let input_fn = |state: &mut State, buffer: &mut [f32], samples: usize| {
+    ///     for sample in buffer.iter_mut().take(samples) {
+    ///        *sample = state.value;
+    ///     }
+    ///     return Ok(samples);
+    ///  };
+    ///
+    /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+    /// let mut state = State { value: 1.0 };
+    /// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+    ///
+    /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
+    ///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
+    ///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,
+    ///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
+    ///
+    /// // create room for 2*48 = 96 samples
+    /// let mut target: [f32; 96] = [0.0; 96];
+    /// // ask SOXR to fill target with 96 samples for which it will use `input_fn`
+    /// assert!(soxr.output(&mut target[..], 96) == 96);
+    /// assert!(soxr.error().is_none());
+    ///```
+    /// ## Example to handle error in `input_fn`
+    /// The input function may return an error. You can handle that using the returned Error type.
+    ///```rust
+    /// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};
+    ///
+    /// struct State {
+    ///   // data for input function to supply Soxr with source samples.
+    ///   // In this case just a value, but you could put a handle to a FLAC file into this.
+    ///   value: f32,
+    ///   state_error: Option<&'static str>,
+    /// }
+    ///
+    /// let input_fn = |state: &mut State, buffer: &mut [f32], samples: usize| {
+    ///     state.state_error = Some("Some Error");
+    ///     Err(Error::new(Some("input_fn".into()), ErrorType::ProcessError("Unexpected end of input".into())))
+    ///  };
+    ///
+    /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
+    /// let mut state = State { value: 1.0, state_error: None };
+    /// assert!(soxr.set_input_safe(input_fn, Some(&mut state), 100).is_ok());
+    ///
+    /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
+    ///                          1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0,
+    ///                          0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0,
+    ///                          -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0];
+    ///
+    /// // create room for 2*48 = 96 samples
+    /// let mut target: [f32; 96] = [0.0; 96];
+    /// assert!(soxr.output(&mut target[..], 96) == 0);
+    /// assert!(soxr.error().is_some());
+    /// // Please note that the ProcessError is not passed through into `error()`
+    /// assert_eq!(soxr.error().unwrap(), "input function reported failure");
+    /// // But you can use the State struct to pass specific errors which you can query on `soxr.error().is_some()`
+    /// assert_eq!(state.state_error, Some("Some Error"));
+    ///```
     pub fn set_input_safe<'a, S, T>(
-        &mut self,
+        &'a mut self,
         input_fn: SoxrFunction<S, T>,
         state: Option<&'a mut S>,
         max_ilen: usize,
@@ -299,6 +427,7 @@ impl Soxr {
                 check: "trampoline",
                 input_state: s,
                 input_fn,
+                last_error: None,
             })
             .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t);
 
@@ -333,7 +462,7 @@ impl Soxr {
     /// // call output using a buffer of 100 mono samples. For stereo devide by 2, so this buffer
     /// // could hold 100 / number_of_channels = 50 stereo samples.
     /// let mut buffer = [0.0f32; 100];
-    /// assert!(s.output(&mut buffer[..], buffer.len()) > 0);
+    /// assert!(s.output(&mut buffer[..], 100) > 0);
     /// ```
     pub fn output<S>(&self, data: &mut [S], samples: usize) -> usize {
         assert!(
@@ -344,29 +473,45 @@ impl Soxr {
     }
 }
 
+// this function is called from Soxr and used the closure inside TrampolineData to get the input samples. All unsafe pointer
+// magic happens inside this function, not the passed closure.
 extern "C" fn input_trampoline<S, T>(
     input_fn_state: *mut ::std::os::raw::c_void,
     data: *mut soxr::soxr_in_t,
     requested_len: usize,
 ) -> usize {
-    println!("input_trampoline: {}", requested_len);
     let trampoline_data = input_fn_state as *mut TrampolineData<S, T>;
     unsafe {
         assert_eq!((*trampoline_data).check, "trampoline");
+
         let input_fn = (*trampoline_data).input_fn;
-        let data: &mut [T] = std::slice::from_raw_parts_mut((*data) as *mut T, requested_len);
-        input_fn(
+        let input_data: &mut [T] = std::slice::from_raw_parts_mut((*data) as *mut T, requested_len);
+        let result = input_fn(
             (*trampoline_data).input_state,
-            data as &mut [T],
+            input_data as &mut [T],
             requested_len,
-        )
+        );
+
+        match result {
+            Ok(samples_or_zero) => samples_or_zero,
+            Err(Error(_, e)) => {
+                (*trampoline_data).last_error = Some(e);
+                *data = ptr::null_mut();
+                0
+            }
+        }
     }
 }
 
+// This struct is passed to the input_trampoline function
+// which uses this to call the closure `input_fn` with `input_state`
+// last_error is used to record the error that input_fn returns.
+// TODO: figure out how to pass this error to calling soxr_output which does not have access to this trampoline struct
 struct TrampolineData<'a, S, T> {
     check: &'static str,
     input_state: &'a mut S,
     input_fn: SoxrFunction<S, T>,
+    last_error: Option<ErrorType>,
 }
 
 impl Drop for Soxr {

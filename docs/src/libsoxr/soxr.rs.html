@@ -521,6 +521,16 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Rust API for SOXR.</span>
 
@@ -782,6 +792,11 @@
 
     <span class="doccomment">/// Sets the input function of type [SoxrFunction].</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// Please note that SoxrFunction gets a buffer as parameter which the function should fill. </span>
+    <span class="doccomment">/// This is different from native `libsoxr` where you need to return the used input buffer from the input function. </span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The input buffer is allocated for you using a Vec&lt;T&gt; with `initial_capacity` set to `max_ilen` that you supplied.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// ## Example for &#39;happy flow&#39;</span>
     <span class="doccomment">///```rust</span>
     <span class="doccomment">/// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};</span>
@@ -861,6 +876,7 @@
                 <span class="ident">input_state</span>: <span class="ident">s</span>,
                 <span class="ident">input_fn</span>,
                 <span class="ident">last_error</span>: <span class="prelude-val">None</span>,
+                <span class="ident">input_buffer</span>: <span class="ident">Vec</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>::<span class="ident">with_capacity</span>(<span class="ident">max_ilen</span>),
             })
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">s</span>)) <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_fn_state_t</span>);
 
@@ -918,15 +934,17 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>((<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">check</span>, <span class="string">&quot;trampoline&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">input_fn</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_fn</span>;
-        <span class="kw">let</span> <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>] <span class="op">=</span> <span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>((<span class="kw-2">*</span><span class="ident">data</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>, <span class="ident">requested_len</span>);
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">input_fn</span>(
-            (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_state</span>,
-            <span class="ident">input_data</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>],
+        <span class="kw">let</span> <span class="ident">input_data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>] <span class="op">=</span> <span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(
+            (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_buffer</span>.<span class="ident">as_mut_slice</span>().<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>,
             <span class="ident">requested_len</span>,
         );
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">input_fn</span>((<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_state</span>, <span class="ident">input_data</span>, <span class="ident">requested_len</span>);
 
         <span class="kw">match</span> <span class="ident">result</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">samples_or_zero</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">samples_or_zero</span>,
+            <span class="prelude-val">Ok</span>(<span class="ident">samples_or_zero</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw-2">*</span><span class="ident">data</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">input_buffer</span>.<span class="ident">as_mut_slice</span>().<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">soxr</span>::<span class="ident">soxr_in_t</span>;
+                <span class="ident">samples_or_zero</span>
+            }
             <span class="prelude-val">Err</span>(<span class="ident">Error</span>(<span class="kw">_</span>, <span class="ident">e</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 (<span class="kw-2">*</span><span class="ident">trampoline_data</span>).<span class="ident">last_error</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>);
                 <span class="kw-2">*</span><span class="ident">data</span> <span class="op">=</span> <span class="ident">ptr</span>::<span class="ident">null_mut</span>();
@@ -945,6 +963,7 @@
     <span class="ident">input_state</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">S</span>,
     <span class="ident">input_fn</span>: <span class="ident">SoxrFunction</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">T</span><span class="op">&gt;</span>,
     <span class="ident">last_error</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ErrorType</span><span class="op">&gt;</span>,
+    <span class="ident">input_buffer</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Soxr</span> {
@@ -1000,7 +1019,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_engine</span>() {
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Soxr</span>::<span class="ident">create</span>(<span class="number">96000.0</span>, <span class="number">44100.0</span>, <span class="number">2</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;cr32s&quot;</span>, <span class="ident">s</span>.<span class="ident">engine</span>());
+        <span class="comment">// cr32 on Linux, but cr32s on MacOS</span>
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">s</span>.<span class="ident">engine</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cr32s&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">engine</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;cr32&quot;</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

@@ -258,6 +258,11 @@ impl Soxr {
 
     /// Sets the input function of type [SoxrFunction].
     ///
+    /// Please note that SoxrFunction gets a buffer as parameter which the function should fill. 
+    /// This is different from native `libsoxr` where you need to return the used input buffer from the input function. 
+    ///
+    /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_ilen` that you supplied.
+    ///
     /// ## Example for 'happy flow'
     ///```rust
     /// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};
@@ -337,6 +342,7 @@ impl Soxr {
                 input_state: s,
                 input_fn,
                 last_error: None,
+                input_buffer: Vec::<T>::with_capacity(max_ilen),
             })
             .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t);
 
@@ -394,15 +400,17 @@ extern "C" fn input_trampoline<S, T>(
         assert_eq!((*trampoline_data).check, "trampoline");
 
         let input_fn = (*trampoline_data).input_fn;
-        let input_data: &mut [T] = std::slice::from_raw_parts_mut((*data) as *mut T, requested_len);
-        let result = input_fn(
-            (*trampoline_data).input_state,
-            input_data as &mut [T],
+        let input_data: &mut [T] = std::slice::from_raw_parts_mut(
+            (*trampoline_data).input_buffer.as_mut_slice().as_ptr() as *mut T,
             requested_len,
         );
+        let result = input_fn((*trampoline_data).input_state, input_data, requested_len);
 
         match result {
-            Ok(samples_or_zero) => samples_or_zero,
+            Ok(samples_or_zero) => {
+                *data = (*trampoline_data).input_buffer.as_mut_slice().as_ptr() as soxr::soxr_in_t;
+                samples_or_zero
+            }
             Err(Error(_, e)) => {
                 (*trampoline_data).last_error = Some(e);
                 *data = ptr::null_mut();
@@ -421,6 +429,7 @@ struct TrampolineData<'a, S, T> {
     input_state: &'a mut S,
     input_fn: SoxrFunction<S, T>,
     last_error: Option<ErrorType>,
+    input_buffer: Vec<T>,
 }
 
 impl Drop for Soxr {
@@ -476,7 +485,8 @@ mod soxr_tests {
     #[test]
     fn test_engine() {
         let s = Soxr::create(96000.0, 44100.0, 2, None, None, None).unwrap();
-        assert_eq!("cr32s", s.engine());
+        // cr32 on Linux, but cr32s on MacOS
+        assert!(s.engine() == "cr32s" || s.engine() == "cr32");
     }
 
     #[test]

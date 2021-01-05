@@ -1,6 +1,6 @@
 [package]
 name = "libsoxr"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Reinier Balt <lrbalt@gmail.com>"]
 description = "Wrapper for libsoxr (resampling library for sounds)"
 repository = "https://github.com/lrbalt/libsoxr-rs"
@@ -8,7 +8,6 @@ documentation = "https://lrbalt.github.io/libsoxr-rs/libsoxr/"
 keywords = ["audio", "sound", "resampling", "sox", "soxr"]
 license = "LGPL-2.0"
 readme = "README.md"
-build = "build.rs"
 edition = "2018"
 
 [dependencies]

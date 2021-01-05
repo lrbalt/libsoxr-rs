@@ -3,25 +3,32 @@
 use crate::datatype::Datatype;
 use libsoxr_sys as soxr;
 
-/// Wrapper for `soxr_runtime_spec_t`
+/// Runtime parameters for resampler. Can be used to control number of threads the resampler uses. Wrapper for `soxr_runtime_spec_t`
 pub struct RuntimeSpec {
     runtime_spec: soxr::soxr_runtime_spec_t,
 }
 
 impl RuntimeSpec {
     /// creates a new `RuntimeSpec` for `num_threads` threads
+    /// ```
+    /// use libsoxr::{Soxr, RuntimeSpec};
+    ///
+    /// let spec = RuntimeSpec::new(4);
+    /// let soxr = Soxr::create(96000.0, 44100.0, 2, None, None, Some(&spec));
+    /// assert!(soxr.is_ok());    
+    /// ```
     pub fn new(num_threads: u32) -> RuntimeSpec {
         RuntimeSpec {
             runtime_spec: unsafe { soxr::soxr_runtime_spec(num_threads) },
         }
     }
     /// returns inner soxr struct
-    pub fn soxr_spec(&self) -> &soxr::soxr_runtime_spec_t {
+    pub(crate) fn soxr_spec(&self) -> &soxr::soxr_runtime_spec_t {
         &self.runtime_spec
     }
 }
 
-/// Wrapper for `soxr_io_spec_t`
+/// IOSpec can be used to set the datatype of the input buffer and output buffer. Wrapper for `soxr_io_spec_t`
 pub struct IOSpec {
     io_spec: soxr::soxr_io_spec_t,
 }
@@ -29,8 +36,11 @@ pub struct IOSpec {
 impl IOSpec {
     /// creates a new `IOSpec` using `soxr_io_spec`
     /// ```
-    /// use libsoxr::{Datatype, IOSpec};
+    /// use libsoxr::{Soxr, Datatype, IOSpec};
+    ///
     /// let spec = IOSpec::new(Datatype::Float32I, Datatype::Float32I);
+    /// let soxr = Soxr::create(96000.0, 44100.0, 2, Some(&spec), None, None);
+    /// assert!(soxr.is_ok());    
     /// ```
     pub fn new(input_type: Datatype, output_type: Datatype) -> IOSpec {
         let itype = input_type.to_soxr_datatype();
@@ -41,32 +51,45 @@ impl IOSpec {
     }
 
     /// returns inner soxr struct
-    pub fn soxr_spec(&self) -> &soxr::soxr_io_spec_t {
+    pub(crate) fn soxr_spec(&self) -> &soxr::soxr_io_spec_t {
         &self.io_spec
     }
 }
 
 bitflags! {
+    /// Quality flags
     pub struct QualityFlags: std::os::raw::c_ulong {
+        /// <= 0.01 dB
         const ROLLOFF_SMALL = soxr::SOXR_ROLLOFF_SMALL as std::os::raw::c_ulong;
+        /// <= 0.35 dB
         const ROLLOFF_MEDIUM = soxr::SOXR_ROLLOFF_MEDIUM as std::os::raw::c_ulong;
+        /// For Chebyshev bandwidth.
         const ROLLOFF_NONE = soxr::SOXR_ROLLOFF_NONE as std::os::raw::c_ulong;
+        /// Increase `irrational' ratio accuracy
         const HI_PREC_CLOCK = soxr::SOXR_HI_PREC_CLOCK as std::os::raw::c_ulong;
+        ///  Use D.P. calcs even if precision <= 20
+        const DOUBLE_PRECISION = soxr::SOXR_DOUBLE_PRECISION as std::os::raw::c_ulong;
+        /// Variable-rate resampling
         const VR = soxr::SOXR_VR as std::os::raw::c_ulong;
     }
 }
 
 pub enum QualityRecipe {
+    /// 'Quick' cubic interpolation
     Quick,
+    /// 'Low' 16-bit with larger rolloff
     Low,
+    /// 'Medium' 16-bit with medium rolloff
     Medium,
+    /// 'High quality'
     High,
+    /// 'Very high quality'
     VeryHigh,
 }
 
 impl QualityRecipe {
     /// convert to SOXR constant
-    pub fn to_recipe(&self) -> u32 {
+    pub(crate) fn to_recipe(&self) -> u32 {
         match self {
             QualityRecipe::Quick => soxr::SOXR_QQ,
             QualityRecipe::Low => soxr::SOXR_LQ,
@@ -77,13 +100,22 @@ impl QualityRecipe {
     }
 }
 
-/// Wrapper for `soxr_quality_spec_t`
+/// QualitySpec controls the quality of the resampling. Wrapper for `soxr_quality_spec_t`
 #[derive(Debug)]
 pub struct QualitySpec {
     quality_spec: soxr::soxr_quality_spec_t,
 }
 
 impl QualitySpec {
+    /// Create a new spec from supplied recipe and flags
+    ///
+    ///```rust
+    /// use libsoxr::{QualityFlags, QualityRecipe, QualitySpec, Soxr};
+    ///
+    /// let spec = QualitySpec::new(&QualityRecipe::High, QualityFlags::ROLLOFF_SMALL);
+    /// let soxr = Soxr::create(96000.0, 44100.0, 2, None, Some(&spec), None);
+    /// assert!(soxr.is_ok());
+    ///```
     pub fn new(quality: &QualityRecipe, flags: QualityFlags) -> QualitySpec {
         QualitySpec {
             quality_spec: unsafe {
@@ -96,7 +128,7 @@ impl QualitySpec {
     }
 
     /// returns inner soxr struct
-    pub fn soxr_spec(&self) -> &soxr::soxr_quality_spec_t {
+    pub(crate) fn soxr_spec(&self) -> &soxr::soxr_quality_spec_t {
         &self.quality_spec
     }
 }

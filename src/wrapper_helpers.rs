@@ -7,7 +7,7 @@ use std::{
     os::raw::{c_char, c_void},
 };
 
-pub fn from_const<'a>(func: &'static str, s: *const i8) -> Result<&'a str> {
+pub fn from_const<'a>(func: &'static str, s: *const c_char) -> Result<&'a str> {
     if s.is_null() {
         return Err(Error::invalid_str(func));
     };

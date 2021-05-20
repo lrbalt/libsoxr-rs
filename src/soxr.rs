@@ -47,6 +47,7 @@ pub struct Soxr {
     soxr: soxr::soxr_t,
     channels: u32,
     error: CString,
+    last_trampoline_data: Option<*mut ::std::os::raw::c_void>,
 }
 
 impl Soxr {
@@ -86,6 +87,7 @@ impl Soxr {
                 soxr,
                 channels: num_channels,
                 error: CString::new("").unwrap(),
+                last_trampoline_data: None,
             })
         } else {
             let error = unsafe { *error };
@@ -258,10 +260,11 @@ impl Soxr {
 
     /// Sets the input function of type [SoxrFunction].
     ///
-    /// Please note that SoxrFunction gets a buffer as parameter which the function should fill. 
-    /// This is different from native `libsoxr` where you need to return the used input buffer from the input function. 
+    /// Please note that SoxrFunction gets a buffer as parameter which the function should fill.
+    /// This is different from native `libsoxr` where you need to return the used input buffer from the input function.
     ///
-    /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_ilen` that you supplied.
+    /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_samples * channels` 
+    /// that you supplied.
     ///
     /// ## Example for 'happy flow'
     ///```rust
@@ -334,24 +337,27 @@ impl Soxr {
         &'a mut self,
         input_fn: SoxrFunction<S, T>,
         state: Option<&'a mut S>,
-        max_ilen: usize,
+        max_samples: usize,
     ) -> Result<()> {
-        let state_data = state
+        self.drop_last_trampoline();
+
+        self.last_trampoline_data = state
             .map(|s| TrampolineData {
                 check: "trampoline",
                 input_state: s,
                 input_fn,
                 last_error: None,
-                input_buffer: Vec::<T>::with_capacity(max_ilen),
+                input_buffer_size: max_samples*self.channels as usize,
+                input_buffer: Vec::<T>::with_capacity(max_samples*self.channels as usize),
             })
-            .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t);
+            .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t_mut);
 
         let error = unsafe {
             soxr::soxr_set_input_fn(
                 self.soxr,
                 Some(input_trampoline::<S, T>),
-                state_data.unwrap_or(ptr::null()) as *mut ::std::os::raw::c_void,
-                max_ilen,
+                self.last_trampoline_data.unwrap_or(ptr::null_mut()) as *mut ::std::os::raw::c_void,
+                max_samples,
             )
         };
 
@@ -386,6 +392,19 @@ impl Soxr {
         );
         unsafe { soxr::soxr_output(self.soxr, data.as_mut_ptr() as *mut c_void, samples) }
     }
+
+    fn drop_last_trampoline(&mut self) {
+        if let Some(last_trampoline_data) = self.last_trampoline_data {
+            // unsafe assumption: we assume here that dropping TrampolineData<S,T> always equals TrampolineData<i32,f32>
+            // this is assumed because TrampolineData only contains references to S or T, but not instances of S or T
+            // This assumption is unit tested below
+            let data: Box<TrampolineData<i32, f32>> =
+                unsafe { Box::from_raw(last_trampoline_data as *mut TrampolineData<i32, f32>) };
+            drop(data);
+
+            self.last_trampoline_data = None;
+        }
+    }
 }
 
 // this function is called from Soxr and used the closure inside TrampolineData to get the input samples. All unsafe pointer
@@ -393,26 +412,27 @@ impl Soxr {
 extern "C" fn input_trampoline<S, T>(
     input_fn_state: *mut ::std::os::raw::c_void,
     data: *mut soxr::soxr_in_t,
-    requested_len: usize,
+    requested_number_of_samples: usize,
 ) -> usize {
-    let trampoline_data = input_fn_state as *mut TrampolineData<S, T>;
     unsafe {
-        assert_eq!((*trampoline_data).check, "trampoline");
+        let trampoline_data = &mut *(input_fn_state as *mut TrampolineData<S, T>);
+        assert_eq!(trampoline_data.check, "trampoline");
 
-        let input_fn = (*trampoline_data).input_fn;
         let input_data: &mut [T] = std::slice::from_raw_parts_mut(
-            (*trampoline_data).input_buffer.as_mut_slice().as_ptr() as *mut T,
-            requested_len,
+            trampoline_data.input_buffer.as_mut_slice().as_mut_ptr(),
+            trampoline_data.input_buffer_size as  usize,
         );
-        let result = input_fn((*trampoline_data).input_state, input_data, requested_len);
+
+        let result =
+            (trampoline_data.input_fn)(trampoline_data.input_state, input_data, requested_number_of_samples);
 
         match result {
             Ok(samples_or_zero) => {
-                *data = (*trampoline_data).input_buffer.as_mut_slice().as_ptr() as soxr::soxr_in_t;
+                *data = trampoline_data.input_buffer.as_slice().as_ptr() as soxr::soxr_in_t;
                 samples_or_zero
             }
             Err(Error(_, e)) => {
-                (*trampoline_data).last_error = Some(e);
+                trampoline_data.last_error = Some(e);
                 *data = ptr::null_mut();
                 0
             }
@@ -429,18 +449,23 @@ struct TrampolineData<'a, S, T> {
     input_state: &'a mut S,
     input_fn: SoxrFunction<S, T>,
     last_error: Option<ErrorType>,
+    input_buffer_size: usize,
     input_buffer: Vec<T>,
 }
 
 impl Drop for Soxr {
     fn drop(&mut self) {
+        // clean up memory used for trampoline data
+        self.drop_last_trampoline();
+
+        // let soxr clean up itself
         unsafe { soxr::soxr_delete(self.soxr) };
     }
 }
 
 #[cfg(test)]
 mod soxr_tests {
-    use super::Soxr;
+    use super::{Soxr, TrampolineData};
     use crate::spec::{IOSpec, QualitySpec, RuntimeSpec};
 
     #[test]
@@ -526,5 +551,18 @@ mod soxr_tests {
         for s in target.iter() {
             print!("{:?}\t", s)
         }
+    }
+
+    #[test]
+    fn test_drop_assumption() {
+        // Drop assumes the following two concrete types of TrampolineData have same size
+        // so dropping TrampolineData<S,T> without knowing S or T is same as dropping
+        // TrampolineData<i32, f32> (or any type for that matter)
+        struct MyData {_v1: f32, _v2: Vec<f32>}
+
+        let s1 = std::mem::size_of::<TrampolineData<i32, f32>>();
+        let s2 = std::mem::size_of::<TrampolineData<MyData, f64>>();
+
+        assert_eq!(s1, s2);
     }
 }

@@ -229,10 +229,10 @@ impl Soxr {
                 soxr::soxr_process(
                     self.soxr,
                     buf.as_ptr() as *const c_void,
-                    buf.len(),
+                    buf.len() / self.channels as usize,
                     &mut idone,
                     buf_out.as_mut_ptr() as *mut c_void,
-                    buf_out.len(),
+                    buf_out.len() / self.channels as usize,
                     &mut odone,
                 )
             },
@@ -243,7 +243,7 @@ impl Soxr {
                     0,
                     &mut idone,
                     buf_out.as_mut_ptr() as *mut c_void,
-                    buf_out.len(),
+                    buf_out.len() / self.channels as usize,
                     &mut odone,
                 )
             },
@@ -263,7 +263,7 @@ impl Soxr {
     /// Please note that SoxrFunction gets a buffer as parameter which the function should fill.
     /// This is different from native `libsoxr` where you need to return the used input buffer from the input function.
     ///
-    /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_samples * channels` 
+    /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_samples * channels`
     /// that you supplied.
     ///
     /// ## Example for 'happy flow'
@@ -347,8 +347,8 @@ impl Soxr {
                 input_state: s,
                 input_fn,
                 last_error: None,
-                input_buffer_size: max_samples*self.channels as usize,
-                input_buffer: Vec::<T>::with_capacity(max_samples*self.channels as usize),
+                input_buffer_size: max_samples * self.channels as usize,
+                input_buffer: Vec::<T>::with_capacity(max_samples * self.channels as usize),
             })
             .map(|s| Box::into_raw(Box::new(s)) as soxr::soxr_fn_state_t_mut);
 
@@ -420,11 +420,14 @@ extern "C" fn input_trampoline<S, T>(
 
         let input_data: &mut [T] = std::slice::from_raw_parts_mut(
             trampoline_data.input_buffer.as_mut_slice().as_mut_ptr(),
-            trampoline_data.input_buffer_size as  usize,
+            trampoline_data.input_buffer_size as usize,
         );
 
-        let result =
-            (trampoline_data.input_fn)(trampoline_data.input_state, input_data, requested_number_of_samples);
+        let result = (trampoline_data.input_fn)(
+            trampoline_data.input_state,
+            input_data,
+            requested_number_of_samples,
+        );
 
         match result {
             Ok(samples_or_zero) => {
@@ -528,7 +531,7 @@ mod soxr_tests {
     }
 
     #[test]
-    fn test_process() {
+    fn test_process_mono() {
         // upscale factor 2, one channel with all the defaults
         let soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
 
@@ -554,11 +557,69 @@ mod soxr_tests {
     }
 
     #[test]
+    fn test_process_stereo() {
+        // upscale factor 2, one channel with all the defaults
+        let soxr = Soxr::create(1.0, 2.0, 2, None, None, None).unwrap();
+
+        // source data, taken from 1-single-block.c of libsoxr examples.
+        let source: [f32; 48] = [
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+        ];
+
+        // create room for 2*48 = 96 samples
+        let mut target: [f32; 96] = [0.0; 96];
+
+        // Two runs. First run will convert the source data into target.
+        // Last run with None is to inform resampler of end-of-input so it can clean up
+        assert!(soxr.process(Some(&source), &mut target).is_ok());
+        assert!(soxr.process::<f32, _>(None, &mut target[0..]).is_ok());
+
+        // just print the values in target
+        for s in target.iter() {
+            print!("{:?}\t", s)
+        }
+    }
+
+    #[test]
+    fn test_process_stereo_2() {
+        // Example from https://github.com/lrbalt/libsoxr-rs/issues/4
+
+        let soxr = Soxr::create(1.0, 2.0, 2, None, None, None).unwrap();
+        let mut in_buf: [f32; 2000] = [1.0; 2000];
+        for n in 1000..2000 {
+            in_buf[n] = -1.0
+        }
+        let mut out_buf: [f32; 4000] = [999.0; 4000];
+        let (i, o) = soxr
+            .process(Some(&in_buf[0..1000]), &mut out_buf[0..2000])
+            .unwrap();
+        println!("i = {}, o = {}", i, o);
+        let mut has_negative = false;
+        for v in out_buf.iter() {
+            if *v < 0.0 {
+                has_negative = true;
+                break;
+            }
+        }
+        if has_negative {
+            println!("Output contains negative samples. in_buf was read out of bounds!");
+        }
+        if out_buf[2000] != 999.0 {
+            println!("Output sentinel overwritten. out_buf was written out of bounds!");
+        }
+    }
+
+    #[test]
     fn test_drop_assumption() {
         // Drop assumes the following two concrete types of TrampolineData have same size
         // so dropping TrampolineData<S,T> without knowing S or T is same as dropping
         // TrampolineData<i32, f32> (or any type for that matter)
-        struct MyData {_v1: f32, _v2: Vec<f32>}
+        struct MyData {
+            _v1: f32,
+            _v2: Vec<f32>,
+        }
 
         let s1 = std::mem::size_of::<TrampolineData<i32, f32>>();
         let s2 = std::mem::size_of::<TrampolineData<MyData, f64>>();

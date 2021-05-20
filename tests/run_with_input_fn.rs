@@ -55,7 +55,7 @@ fn test_data_fn() {
     assert!(soxr.set_input(test_input_fn, Some(&mut state), 75).is_ok());
 
     // create buffer for resampled data
-    let mut data = [1.1f32;300];
+    let mut data = [1.1f32; 300];
     println!("First call");
     assert_eq!(150, soxr.output(&mut data, 150));
     assert_abs_diff_ne!(data[0], 1.1);
@@ -114,7 +114,7 @@ fn test_with_custom_specs() {
 
 #[test]
 fn test_with_two_soxrs() {
-    println!("Creating Soxr 1"); 
+    println!("Creating Soxr 1");
     let mut soxr1 = Soxr::create(1.0, 2.0, 2, None, None, None).unwrap();
     soxr1.clear().unwrap();
 

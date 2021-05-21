@@ -8,3 +8,4 @@ Cargo.lock
 target
 Cargo.lock
 .DS_Store
+src/libsoxr.code-workspace

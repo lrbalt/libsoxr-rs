@@ -198,7 +198,7 @@ impl Soxr {
     /// [IOSpec] on create, it defaults to `f32`. Make sure that `buf_out` is large enough to hold
     /// the resampled data. Furthermore, to indicate end-of-input to the resampler, always end with
     /// a last call to process with `None` as `buf_in`. The result contains number of input samples
-    /// used and number of output samples places in 'buf_out'
+    /// used and number of output samples placed in 'buf_out'
     ///
     /// ## Example
     ///
@@ -222,18 +222,21 @@ impl Soxr {
     /// soxr.process::<f32,_>(None, &mut target[0..]).unwrap();
     /// ```
     pub fn process<I, O>(&self, buf_in: Option<&[I]>, buf_out: &mut [O]) -> Result<(usize, usize)> {
-        let mut idone = 0;
-        let mut odone = 0;
+        let mut idone_in_samples = 0;
+        let mut odone_in_samples = 0;
         let error = match buf_in {
-            Some(buf) => unsafe {
+            Some(buf_in) => unsafe {
+                let samples_in_buf_in = buf_in.len() / self.channels as usize;
+                let samples_in_buf_out = buf_out.len() / self.channels as usize;
+                println!("{} i - {} o", samples_in_buf_in, samples_in_buf_out);
                 soxr::soxr_process(
                     self.soxr,
-                    buf.as_ptr() as *const c_void,
-                    buf.len() / self.channels as usize,
-                    &mut idone,
+                    buf_in.as_ptr() as *const c_void,
+                    samples_in_buf_in,
+                    &mut idone_in_samples,
                     buf_out.as_mut_ptr() as *mut c_void,
-                    buf_out.len() / self.channels as usize,
-                    &mut odone,
+                    samples_in_buf_out,
+                    &mut odone_in_samples,
                 )
             },
             None => unsafe {
@@ -241,15 +244,15 @@ impl Soxr {
                     self.soxr,
                     ptr::null() as *const c_void,
                     0,
-                    &mut idone,
+                    &mut idone_in_samples,
                     buf_out.as_mut_ptr() as *mut c_void,
                     buf_out.len() / self.channels as usize,
-                    &mut odone,
+                    &mut odone_in_samples,
                 )
             },
         };
         if error.is_null() {
-            Ok((idone, odone))
+            Ok((idone_in_samples, odone_in_samples))
         } else {
             Err(Error::new(
                 Some("Soxr::process".into()),
@@ -591,24 +594,37 @@ mod soxr_tests {
         for n in 1000..2000 {
             in_buf[n] = -1.0
         }
+
         let mut out_buf: [f32; 4000] = [999.0; 4000];
-        let (i, o) = soxr
+        let (i1, o1) = soxr
             .process(Some(&in_buf[0..1000]), &mut out_buf[0..2000])
             .unwrap();
-        println!("i = {}, o = {}", i, o);
+        println!("i = {}, o = {}", i1, o1);
+        let (i2, o2) = soxr.process::<f32, _>(None, &mut out_buf[0..2000]).unwrap();
+        println!("i = {}, o = {}", i2, o2);
+
+        assert_eq!(500, i1); // 1000 for 2 channels --> 500 samples
+        assert_eq!(1000, o2); // 500 samples 1Hz to 2Hz means more than 500 samples
+
         let mut has_negative = false;
-        for v in out_buf.iter() {
+        for (i,v) in out_buf.iter().enumerate() {
             if *v < 0.0 {
                 has_negative = true;
+                println!("{}: {}", i, v);
                 break;
             }
         }
-        if has_negative {
-            println!("Output contains negative samples. in_buf was read out of bounds!");
-        }
-        if out_buf[2000] != 999.0 {
-            println!("Output sentinel overwritten. out_buf was written out of bounds!");
-        }
+
+        println!("\n{:?}", out_buf);
+
+        assert!(
+            !has_negative,
+            "Output contains negative samples. in_buf was read out of bounds!"
+        );
+        assert!(
+            out_buf[2000] == 999.0,
+            "Output sentinel overwritten. out_buf was written out of bounds!"
+        );
     }
 
     #[test]

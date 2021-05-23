@@ -228,7 +228,6 @@ impl Soxr {
             Some(buf_in) => unsafe {
                 let samples_in_buf_in = buf_in.len() / self.channels as usize;
                 let samples_in_buf_out = buf_out.len() / self.channels as usize;
-                println!("{} i - {} o", samples_in_buf_in, samples_in_buf_out);
                 soxr::soxr_process(
                     self.soxr,
                     buf_in.as_ptr() as *const c_void,

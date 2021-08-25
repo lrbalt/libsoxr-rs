@@ -268,6 +268,9 @@ impl Soxr {
     /// The input buffer is allocated for you using a Vec<T> with `initial_capacity` set to `max_samples * channels`
     /// that you supplied.
     ///
+    /// Please note that the state you pass into `set_input` may not be moved in memory. Thus it is wise to keep the
+    /// state in a Box (heap) and not on the stack. TODO: check if `Pin`is an option here.
+    ///
     /// ## Example for 'happy flow'
     ///```rust
     /// use libsoxr::{Error, ErrorType, Soxr, SoxrFunction};
@@ -286,7 +289,7 @@ impl Soxr {
     ///  };
     ///
     /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
-    /// let mut state = State { value: 1.0 };
+    /// let mut state = Box::new(State { value: 1.0 });
     /// assert!(soxr.set_input(input_fn, Some(&mut state), 100).is_ok());
     ///
     /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
@@ -318,7 +321,7 @@ impl Soxr {
     ///  };
     ///
     /// let mut soxr = Soxr::create(1.0, 2.0, 1, None, None, None).unwrap();
-    /// let mut state = State { value: 1.0, state_error: None };
+    /// let mut state = Box::new(State { value: 1.0, state_error: None });
     /// assert!(soxr.set_input(input_fn, Some(&mut state), 100).is_ok());
     ///
     /// let source: [f32; 48] = [0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0,
@@ -409,8 +412,9 @@ impl Soxr {
     }
 }
 
-// this function is called from Soxr and used the closure inside TrampolineData to get the input samples. All unsafe pointer
-// magic happens inside this function, not the passed closure.
+// this function is called from Soxr and uses the closure inside TrampolineData
+// to get the input samples. All unsafe pointer magic happens inside this
+// function, not inside the passed closure.
 extern "C" fn input_trampoline<S, T>(
     input_fn_state: *mut ::std::os::raw::c_void,
     data: *mut soxr::soxr_in_t,
@@ -446,7 +450,7 @@ extern "C" fn input_trampoline<S, T>(
 }
 
 // This struct is passed to the input_trampoline function
-// which uses this to call the closure `input_fn` with `input_state`
+// which uses it to call the closure `input_fn` with `input_state`
 // last_error is used to record the error that input_fn returns.
 // TODO: figure out how to pass this error to calling soxr_output which does not have access to this trampoline struct
 struct TrampolineData<'a, S, T> {
@@ -470,6 +474,8 @@ impl Drop for Soxr {
 
 #[cfg(test)]
 mod soxr_tests {
+    use approx::assert_abs_diff_eq;
+
     use super::{Soxr, TrampolineData};
     use crate::spec::{IOSpec, QualitySpec, RuntimeSpec};
 
@@ -606,7 +612,7 @@ mod soxr_tests {
         assert_eq!(1000, o2); // 500 samples 1Hz to 2Hz means more than 500 samples
 
         let mut has_negative = false;
-        for (i,v) in out_buf.iter().enumerate() {
+        for (i, v) in out_buf.iter().enumerate() {
             if *v < 0.0 {
                 has_negative = true;
                 println!("{}: {}", i, v);
@@ -620,10 +626,9 @@ mod soxr_tests {
             !has_negative,
             "Output contains negative samples. in_buf was read out of bounds!"
         );
-        assert!(
-            out_buf[2000] == 999.0,
-            "Output sentinel overwritten. out_buf was written out of bounds!"
-        );
+
+        // Output sentinel overwritten. out_buf was written out of bounds!
+        assert_abs_diff_eq!(out_buf[2000], 999.0);
     }
 
     #[test]
@@ -640,5 +645,47 @@ mod soxr_tests {
         let s2 = std::mem::size_of::<TrampolineData<MyData, f64>>();
 
         assert_eq!(s1, s2);
+    }
+
+    #[test]
+    fn test_unsafe_drop() {
+        struct MyState {
+            check: &'static str,
+        }
+
+        fn test_input_fn(
+            state: &mut MyState,
+            buf: &mut [f32],
+            req_samples: usize,
+        ) -> crate::Result<usize> {
+            if state.check != "test" {
+                println!("check failed");
+            }
+            for value in buf.iter_mut().take(req_samples * 2) {
+                *value = 1.1;
+            }
+            Ok(req_samples)
+        }
+
+        let mut i = 0;
+        while i < 100 {
+            {
+                let mut soxr = Soxr::create(1.0, 1.0, 2, None, None, None).unwrap();
+                let mut state = MyState { check: "test" };
+                let mut buffer = [0.0f32; 5000];
+                soxr.set_input(test_input_fn, Some(&mut state), 500)
+                    .unwrap();
+                let mut j = 0;
+                while j < 1_000 {
+                    let out = soxr.output(&mut buffer, 2500);
+                    assert_eq!(2500, out);
+                    j += 1;
+                }
+                for value in buffer.iter() {
+                    assert_abs_diff_eq!(1.1f32, *value);
+                }
+            } // drop
+            i += 1;
+        }
     }
 }

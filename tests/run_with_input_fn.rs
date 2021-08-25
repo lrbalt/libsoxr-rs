@@ -13,7 +13,7 @@ fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_samples: usize) -> Re
     assert_eq!("libsoxr", state.check);
 
     print!(
-        "@@@@ Setting {} samples for {} channels values for {}  and with cmd {}: ",
+        "@@@@ Setting {} samples for {} channels values for {} and with cmd {}: ",
         req_samples, state.channels, state.check, state.command
     );
 
@@ -25,12 +25,12 @@ fn test_input_fn(state: &mut MyState, buf: &mut [f32], req_samples: usize) -> Re
     for value in buf.iter_mut().take(req_samples * state.channels) {
         *value = value_to_use;
     }
-    state.samples_created += req_samples * state.channels;
+    state.samples_created += req_samples;
 
     // for testing: set command to non-zero to force end-of-input (eoi)
     if state.command == 0 {
-        println!("returning {:?}", req_samples * state.channels);
-        Ok(req_samples * state.channels)
+        println!("returning {:?}", req_samples);
+        Ok(req_samples)
     } else {
         println!("eoi");
         Ok(0)
@@ -141,7 +141,7 @@ fn test_with_two_soxrs() {
         .set_input(test_input_fn, Some(&mut state), 2500)
         .is_ok());
 
-    // create buffer for resampled data
+    // create buffer for resampled data; 5000 * 2 channels
     let mut data1 = [1.1f32; 10000];
     let mut data2 = [1.1f32; 10000];
     println!("First call");

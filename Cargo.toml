@@ -1,11 +1,12 @@
 [package]
 name = "libsoxr"
-version = "0.2.7"
+version = "0.2.8"
 authors = ["Reinier Balt <lrbalt@gmail.com>"]
 description = "Wrapper for libsoxr (resampling library for sounds)"
 repository = "https://github.com/lrbalt/libsoxr-rs"
 documentation = "https://docs.rs/libsoxr"
 keywords = ["audio", "sound", "resampling", "sox", "soxr"]
+categories = ["multimedia::audio"]
 license = "LGPL-2.0"
 readme = "README.md"
 edition = "2018"

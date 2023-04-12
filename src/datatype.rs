@@ -29,4 +29,11 @@ impl Datatype {
             Datatype::Int16S => soxr::SOXR_INT16_S,
         }
     }
+
+    pub fn is_interleaved(&self) -> bool {
+        match self {
+            Datatype::Float32I | Datatype::Float64I | Datatype::Int16I | Datatype::Int32I => true,
+            Datatype::Float32S | Datatype::Float64S | Datatype::Int16S | Datatype::Int32S => false,
+        }
+    }
 }

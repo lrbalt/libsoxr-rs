@@ -29,8 +29,11 @@ impl RuntimeSpec {
 }
 
 /// IOSpec can be used to set the datatype of the input buffer and output buffer. Wrapper for `soxr_io_spec_t`
+#[derive(Debug, Clone)]
 pub struct IOSpec {
     io_spec: soxr::soxr_io_spec_t,
+    input_type: Datatype,
+    output_type: Datatype,
 }
 
 impl IOSpec {
@@ -47,12 +50,22 @@ impl IOSpec {
         let otype = output_type.to_soxr_datatype();
         IOSpec {
             io_spec: unsafe { soxr::soxr_io_spec(itype, otype) },
+            input_type,
+            output_type,
         }
     }
 
     /// returns inner soxr struct
     pub(crate) fn soxr_spec(&self) -> &soxr::soxr_io_spec_t {
         &self.io_spec
+    }
+
+    pub fn input_type(&self) -> Datatype {
+        self.input_type
+    }
+
+    pub fn output_type(&self) -> Datatype {
+        self.output_type
     }
 }
 
@@ -121,7 +134,7 @@ impl QualitySpec {
             quality_spec: unsafe {
                 soxr::soxr_quality_spec(
                     std::os::raw::c_ulong::from(quality.to_recipe()),
-                    flags.bits as std::os::raw::c_ulong,
+                    flags.bits() as std::os::raw::c_ulong,
                 )
             },
         }
@@ -136,12 +149,26 @@ impl QualitySpec {
 #[test]
 fn test_create_io_spec() {
     let spec = IOSpec::new(Datatype::Float32I, Datatype::Int32I);
+    assert_eq!(Datatype::Float32I, spec.input_type());
+    assert_eq!(Datatype::Int32I, spec.output_type());
     assert_eq!(
         Datatype::Float32I.to_soxr_datatype() as isize,
         spec.io_spec.itype as isize
     );
     assert_eq!(
         Datatype::Int32I.to_soxr_datatype() as isize,
+        spec.io_spec.otype as isize
+    );
+
+    let spec = IOSpec::new(Datatype::Float32S, Datatype::Int32S);
+    assert_eq!(Datatype::Float32S, spec.input_type());
+    assert_eq!(Datatype::Int32S, spec.output_type());
+    assert_eq!(
+        Datatype::Float32S.to_soxr_datatype() as isize,
+        spec.io_spec.itype as isize
+    );
+    assert_eq!(
+        Datatype::Int32S.to_soxr_datatype() as isize,
         spec.io_spec.otype as isize
     );
 }

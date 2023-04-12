@@ -46,6 +46,7 @@ pub type SoxrFunction<S, T> = fn(&mut S, &mut [T], usize) -> Result<usize>;
 pub struct Soxr {
     soxr: soxr::soxr_t,
     channels: u32,
+    io_spec: Option<IOSpec>,
     error: CString,
     last_trampoline_data: Option<*mut ::std::os::raw::c_void>,
 }
@@ -86,6 +87,7 @@ impl Soxr {
             Ok(Soxr {
                 soxr,
                 channels: num_channels,
+                io_spec: io_spec.cloned(),
                 error: CString::new("").unwrap(),
                 last_trampoline_data: None,
             })
@@ -224,27 +226,37 @@ impl Soxr {
     pub fn process<I, O>(&self, buf_in: Option<&[I]>, buf_out: &mut [O]) -> Result<(usize, usize)> {
         let mut idone_in_samples = 0;
         let mut odone_in_samples = 0;
+
+        let mut split_buf_in: Vec<*const c_void> = Vec::with_capacity(self.channels as usize);
+        let mut split_buf_out: Vec<*mut c_void> = Vec::with_capacity(self.channels as usize);
+
         let error = match buf_in {
             Some(buf_in) => unsafe {
                 let samples_in_buf_in = buf_in.len() / self.channels as usize;
                 let samples_in_buf_out = buf_out.len() / self.channels as usize;
+
+                let buf_in_ptr = self.get_buf_in_ptr(buf_in, &mut split_buf_in);
+                let buf_out_ptr = self.get_buf_out_ptr(buf_out, &mut split_buf_out);
+
                 soxr::soxr_process(
                     self.soxr,
-                    buf_in.as_ptr() as *const c_void,
+                    buf_in_ptr,
                     samples_in_buf_in,
                     &mut idone_in_samples,
-                    buf_out.as_mut_ptr() as *mut c_void,
+                    buf_out_ptr,
                     samples_in_buf_out,
                     &mut odone_in_samples,
                 )
             },
             None => unsafe {
+                let buf_out_ptr = self.get_buf_out_ptr(buf_out, &mut split_buf_out);
+
                 soxr::soxr_process(
                     self.soxr,
                     ptr::null() as *const c_void,
                     0,
                     &mut idone_in_samples,
-                    buf_out.as_mut_ptr() as *mut c_void,
+                    buf_out_ptr,
                     buf_out.len() / self.channels as usize,
                     &mut odone_in_samples,
                 )
@@ -258,6 +270,40 @@ impl Soxr {
                 ErrorType::ProcessError(from_const("Soxr::process", error).unwrap().to_string()),
             ))
         }
+    }
+
+    fn get_buf_in_ptr<I>(&self, buf_in: &[I], split_buf: &mut Vec<*const c_void>) -> *const c_void {
+        let Some(io_spec) = self.io_spec.as_ref() else {
+            // assume interleaved
+            return buf_in.as_ptr() as *const c_void;
+        };
+        
+        if io_spec.input_type().is_interleaved() {
+            return buf_in.as_ptr() as *const c_void;
+        }
+        
+        let samples_in_buf = buf_in.len() / self.channels as usize;
+        for channel in 0..self.channels as usize {
+            split_buf.push(buf_in[channel * samples_in_buf..].as_ptr() as *const c_void);
+        }
+        split_buf.as_ptr() as *const c_void        
+    }
+
+    fn get_buf_out_ptr<O>(&self, buf_out: &[O], split_buf: &mut Vec<*mut c_void>) -> *mut c_void {
+        let Some(io_spec) = self.io_spec.as_ref() else {
+            // assume interleaved
+            return buf_out.as_ptr() as *mut c_void;
+        };
+        
+        if io_spec.input_type().is_interleaved() {
+            return buf_out.as_ptr() as *mut c_void;
+        }
+        
+        let samples_in_buf = buf_out.len() / self.channels as usize;
+        for channel in 0..self.channels as usize {
+            split_buf.push(buf_out[channel * samples_in_buf..].as_ptr() as *mut c_void);
+        }
+        split_buf.as_ptr() as *mut c_void        
     }
 
     /// Sets the input function of type [SoxrFunction].
@@ -426,7 +472,7 @@ extern "C" fn input_trampoline<S, T>(
 
         let input_data: &mut [T] = std::slice::from_raw_parts_mut(
             trampoline_data.input_buffer.as_mut_slice().as_mut_ptr(),
-            trampoline_data.input_buffer_size as usize,
+            trampoline_data.input_buffer_size,
         );
 
         let result = (trampoline_data.input_fn)(
@@ -515,7 +561,7 @@ mod soxr_tests {
         assert!(s.error().is_none());
         assert!(s.set_error("Sumsing Wrung".to_string()).is_ok());
         // FIXME: should eval to true, but not seem to work and returns false
-        assert!(!s.error().is_some());
+        assert!(s.error().is_none());
     }
 
     #[test]
@@ -687,5 +733,69 @@ mod soxr_tests {
             } // drop
             i += 1;
         }
+    }
+
+    #[test]
+    fn test_split_channels() {
+        use crate::Datatype::{Float32S, Float64S};
+
+        let io_spec = IOSpec::new(Float32S, Float64S);
+
+        // upscale factor 2, one channel with all the defaults
+        let soxr = Soxr::create(1.0, 2.0, 2, Some(&io_spec), None, None).unwrap();
+
+        // source data, taken from 1-single-block.c of libsoxr examples.
+        let source: [f32; 96] = [
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+        ];
+
+        // create room for 2*96 = 192 samples
+        let mut target: [f64; 192] = [0.0; 192];
+
+        // Two runs. First run will convert the source data into target.
+        // Last run with None is to inform resampler of end-of-input so it can clean up
+        soxr.process(Some(&source), &mut target).unwrap();
+        soxr.process::<f32, _>(None, &mut target).unwrap();
+
+        // just print the values in target
+        println!("{:?}", target);
+        println!("{:?}", target.len());
+    }
+
+    #[test]
+    fn test_interleaved_channels() {
+        use crate::Datatype::{Float32I, Float64I};
+
+        let io_spec = IOSpec::new(Float32I, Float64I);
+
+        // upscale factor 2, one channel with all the defaults
+        let soxr = Soxr::create(1.0, 2.0, 2, Some(&io_spec), None, None).unwrap();
+
+        // source data, taken from 1-single-block.c of libsoxr examples.
+        let source: [f32; 96] = [
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+            0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0,
+        ];
+
+        // create room for 2*96 = 192 samples
+        let mut target: [f64; 192] = [0.0; 192];
+
+        // Two runs. First run will convert the source data into target.
+        // Last run with None is to inform resampler of end-of-input so it can clean up
+        soxr.process(Some(&source), &mut target).unwrap();
+        soxr.process::<f32, _>(None, &mut target).unwrap();
+
+        // just print the values in target
+        println!("{:?}", target);
+        println!("{:?}", target.len());
     }
 }
